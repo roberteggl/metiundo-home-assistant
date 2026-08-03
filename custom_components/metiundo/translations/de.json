@@ -1,0 +1,166 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Metiundo Smart Meter",
+        "description": "Verbinde dein Metiundo-Konto mit Home Assistant. Die Integration stellt einen ausgewählten Stromzählpunkt (kumulative Netzimport-/Netzexport-Energie) über die Metiundo-API bereit.\n\nWenn du Kostenstatistiken aktivierst, wird der erste Tarif auch für historische Importe verwendet. Weitere Tarife kannst du später unter Konfigurieren hinzufügen.\n\nWenn du Hilfe bei der Einrichtung brauchst, schau in die [Dokumentation]({documentation_url}).",
+        "data": {
+          "username": "E-Mail-Adresse",
+          "password": "Passwort",
+          "enable_export_metrics": "Export-Metriken aktivieren",
+          "import_historical_data": "Daten älter als die letzten 48 Stunden importieren",
+          "enable_cost_metrics": "Energiekostenstatistiken aktivieren",
+          "arbeitspreis_ct_per_kwh": "Arbeitspreis (ct/kWh)",
+          "grundpreis_eur_per_month": "Grundpreis (EUR/Monat)",
+          "tariff_effective_from": "Erster Tarif gültig ab"
+        }
+      },
+      "history": {
+        "title": "Historische Daten importieren",
+        "description": "Wähle das früheste Datum für den Import. Daten von diesem Datum bis zur neuesten verfügbaren API-Messung werden einmalig während der Einrichtung importiert.",
+        "data": {
+          "history_start_date": "Daten importieren ab"
+        }
+      },
+      "metering_point": {
+        "title": "Zählpunkt auswählen",
+        "description": "Wähle den Stromzählpunkt, der in Home Assistant bereitgestellt werden soll.",
+        "data": {
+          "metering_point_uuid": "Zählpunkt"
+        }
+      },
+      "reconfigure": {
+        "description": "Aktualisiere die Zugangsdaten für diese Integration.",
+        "data": {
+          "username": "E-Mail-Adresse",
+          "password": "Passwort"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Integration erneut authentifizieren",
+        "description": "Die Zugangsdaten für {username} sind nicht mehr gültig. Gib aktualisierte Zugangsdaten ein, um den Zugriff wiederherzustellen.",
+        "data": {
+          "username": "E-Mail-Adresse",
+          "password": "Passwort"
+        }
+      }
+    },
+    "error": {
+      "auth": "Benutzername/Passwort ist falsch.",
+      "connection": "Verbindung zum Server nicht möglich.",
+      "no_metering_points": "Für dieses Konto sind keine unterstützten Stromzählpunkte verfügbar.",
+      "invalid_metering_point": "Wähle einen gültigen Zählpunkt.",
+      "invalid_history_start_date": "Gib ein gültiges Startdatum ein.",
+      "history_start_date_too_recent": "Wähle ein Datum, das mindestens 48 Stunden zurückliegt.",
+      "tariff_must_start_first_of_month": "Jeder Tarif muss am ersten Tag eines Monats beginnen.",
+      "unknown": "Unbekannter Fehler aufgetreten."
+    },
+    "abort": {
+      "already_configured": "Dieser Eintrag ist bereits konfiguriert.",
+      "no_metering_points": "Für dieses Konto sind keine unterstützten Stromzählpunkte verfügbar.",
+      "unknown": "Der Konfigurationsablauf ist nicht mehr gültig."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Integrationsoptionen konfigurieren",
+        "description": "Passe an, wie diese Integration arbeitet. Wenn Kostenstatistiken aktiviert sind, fügt das Speichern eines Tarifs den Tarif für diesen Monat hinzu oder ersetzt ihn. Tarife müssen am ersten Tag eines Monats beginnen.",
+        "data": {
+          "update_interval_hours": "Aktualisierungsintervall (Stunden)",
+          "enable_debugging": "Debug-Protokollierung aktivieren",
+          "enable_export_metrics": "Export-Metriken aktivieren",
+          "enable_cost_metrics": "Energiekostenstatistiken aktivieren",
+          "arbeitspreis_ct_per_kwh": "Arbeitspreis (ct/kWh)",
+          "grundpreis_eur_per_month": "Grundpreis (EUR/Monat)",
+          "tariff_effective_from": "Tarif gültig ab (erster Tag des Monats)"
+        },
+        "data_description": {
+          "update_interval_hours": "Wie oft Daten von der API aktualisiert werden (0,25 bis 24 Stunden)",
+          "enable_debugging": "Detaillierte Debug-Protokollierung zur Fehlerbehebung aktivieren",
+          "enable_export_metrics": "Den Sensor für Netzexport-Energie erstellen",
+          "enable_cost_metrics": "Eine externe Kostenstatistik für das Energie-Dashboard erstellen",
+          "arbeitspreis_ct_per_kwh": "Der variable Strompreis pro kWh",
+          "grundpreis_eur_per_month": "Der feste monatliche Grundpreis",
+          "tariff_effective_from": "Speichern fügt den Tarif für diesen Monat hinzu oder ersetzt ihn"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "authentication_failed": {
+      "message": "Authentifizierung während der Datenaktualisierung fehlgeschlagen."
+    },
+    "update_failed": {
+      "message": "Aktualisierung der Daten vom Server fehlgeschlagen."
+    },
+    "rate_limited": {
+      "message": "Das Rate-Limit der Metiundo-API wurde überschritten. Späterer erneuter Versuch."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "api_connectivity": {
+        "name": "API-Verbindung"
+      }
+    },
+    "sensor": {
+      "grid_import_energy": {
+        "name": "Netzimport-Energie"
+      },
+      "grid_export_energy": {
+        "name": "Netzexport-Energie"
+      },
+      "last_reading_time": {
+        "name": "Zeitpunkt der letzten Messung"
+      },
+      "reading_quality": {
+        "name": "Messqualität"
+      },
+      "metering_point_address": {
+        "name": "Zählpunktadresse"
+      },
+      "melo": {
+        "name": "MeLo-ID"
+      },
+      "malo_consumption": {
+        "name": "MaLo-ID Verbrauch"
+      },
+      "malo_production": {
+        "name": "MaLo-ID Erzeugung"
+      }
+    }
+  },
+  "issues": {
+    "historical_import_failed": {
+      "title": "Import historischer Daten fehlgeschlagen",
+      "description": "Metiundo konnte den angeforderten Import historischer Daten nicht abschließen. Die Integration versucht es erneut, solange der Import aussteht. Details: {error}"
+    },
+    "no_recent_data": {
+      "title": "Keine aktuellen Metiundo-Daten",
+      "description": "Die Metiundo-API hat keine nutzbare aktuelle Messung geliefert. Prüfe die API-Verbindung und die Diagnose. Details: {error}"
+    },
+    "deprecated_api_endpoint": {
+      "title": "Veralteter API-Endpunkt",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "API-Endpunkt aktualisieren",
+            "description": "Dein Gerät verwendet die API-Version {api_version}, die veraltet ist. Bitte aktualisiere auf v2 für weiterhin Unterstützung und neue Funktionen.\n\nKlicke auf Absenden, um dein Gerät auf den neuen API-Endpunkt (v2) umzustellen. Dadurch wird die Integration neu geladen."
+          }
+        }
+      }
+    },
+    "missing_configuration": {
+      "title": "Fehlende Konfiguration",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Konfigurationsproblem bestätigen",
+            "description": "Einige Konfigurationsoptionen fehlen oder sind ungültig. Bitte konfiguriere die Integration neu, um einen ordnungsgemäßen Betrieb sicherzustellen.\n\nKlicke auf Absenden, um dieses Problem zu bestätigen. Du musst die Integration möglicherweise neu konfigurieren, wenn Probleme bestehen bleiben."
+          }
+        }
+      }
+    }
+  }
+}
