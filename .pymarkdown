@@ -1,0 +1,52 @@
+{
+  // pymarkdownlint configuration
+  // Linter that replaced markdownlint-cli2 (see DEPENDENCIES.md).
+  // Rule settings mirror the previous .markdownlint.json where pymarkdownlint
+  // has an equivalent rule (MD049/MD050 emphasis/strong style have no
+  // pymarkdownlint counterpart — mdformat enforces that style at format time).
+  "system": {
+    // Same exclusions as the previous .markdownlint-cli2.jsonc "ignores"
+    "exclude_path": [
+      "node_modules/**",
+      "config/**",
+      ".local/**",
+      "custom_components/hacs/**",
+      "CHANGELOG.md"
+    ]
+  },
+  "extensions": {
+    // Parse YAML front-matter so it is not mistaken for headings
+    "front-matter": {
+      "enabled": true
+    },
+    // Parse GFM tables so table rules (MD055-MD060) apply instead of
+    // treating table rows as paragraphs
+    "markdown-tables": {
+      "enabled": true
+    }
+  },
+  "plugins": {
+    // MD004 ul-style — mdformat chooses the list marker style
+    "md004": { "enabled": false },
+    // MD013 line-length — line wrapping is enforced by mdformat (wrap = 120)
+    "md013": { "enabled": false },
+    // MD026 no-trailing-punctuation — allowed in headings
+    "md026": { "enabled": false },
+    // MD028 no-blanks-blockquote — allowed
+    "md028": { "enabled": false },
+    // MD036 no-emphasis-as-heading — allowed
+    "md036": { "enabled": false },
+    // MD041 first-line-heading — files do not require a top-level H1
+    "md041": { "enabled": false },
+    // MD033 no-inline-html — allow the same elements as before
+    "md033": {
+      "enabled": true,
+      "allowed_elements": "!--,a,abbr,bdo,br,caption,cite,dd,del,details,dfn,div,dl,dt,em,figcaption,figure,img,ins,kbd,mark,picture,q,rp,rt,ruby,samp,small,source,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,u,var,wbr"
+    },
+    // MD046 code-block-style — fenced code blocks
+    "md046": {
+      "enabled": true,
+      "style": "fenced"
+    }
+  }
+}

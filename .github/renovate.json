@@ -1,0 +1,58 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["devcontainer", "github-actions", "pip_requirements"],
+  "schedule": ["before 6am on Monday"],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+  "pip_requirements": {
+    "managerFilePatterns": ["/(^|/)requirements[\\w_-]*\\.txt$/"]
+  },
+  "packageRules": [
+    {
+      "description": "Ignore homeassistant — transitive dep; version must stay in sync with hacs.json homeassistant",
+      "matchManagers": ["pip_requirements"],
+      "matchPackageNames": ["homeassistant"],
+      "enabled": false
+    },
+    {
+      "description": "Ignore pytest-homeassistant-custom-component — bump manually together with hacs.json homeassistant",
+      "matchManagers": ["pip_requirements"],
+      "matchPackageNames": ["pytest-homeassistant-custom-component"],
+      "enabled": false
+    },
+    {
+      "description": "Group GitHub Actions minor/patch updates; major updates stay separate",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "github-actions",
+      "groupSlug": "github-actions"
+    },
+    {
+      "description": "Let new GitHub Actions versions settle for 7 days (same as HA Core)",
+      "matchManagers": ["github-actions"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Group Python minor/patch updates; major updates stay separate",
+      "matchManagers": ["pip_requirements"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackageNames": ["!homeassistant", "!pytest-homeassistant-custom-component"],
+      "groupName": "python-dependencies",
+      "groupSlug": "python-dependencies"
+    },
+    {
+      "description": "Let Python patch releases settle for 3 days",
+      "matchManagers": ["pip_requirements"],
+      "matchUpdateTypes": ["patch"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Let Python minor releases settle for 7 days",
+      "matchManagers": ["pip_requirements"],
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "7 days"
+    }
+  ]
+}

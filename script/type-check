@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# script/type-check: Run type checking tools
+#
+# Runs basedpyright type checker to validate type annotations and catch
+# type-related issues. Uses 'basic' type checking mode.
+#
+# Usage:
+#   ./script/type-check
+#
+# Examples:
+#   ./script/type-check
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
+# shellcheck source=script/.lib/output.sh
+source "$SCRIPT_DIR/.lib/output.sh"
+
+activate_venv
+
+run_hook "type-check" "pre"
+
+log_header "Running type checking tools"
+
+if ! command -v basedpyright >/dev/null 2>&1; then
+    die "basedpyright not installed. Run: script/setup/bootstrap"
+fi
+
+basedpyright
+
+run_hook "type-check" "post"
+log_success "Type checking completed"

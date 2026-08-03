@@ -1,0 +1,27 @@
+# mdformat configuration
+# CommonMark-compliant Markdown formatter (replaces Prettier for Markdown).
+# https://mdformat.readthedocs.io/
+
+# Preserve existing paragraph wrapping (matches Prettier's proseWrap: preserve)
+wrap = "keep"
+
+# Keep consecutive numbering in ordered lists (like Prettier)
+number = true
+
+# Unix line endings
+end_of_line = "lf"
+
+# Enable GFM (tables, autolinks, strikethrough) and footnote extensions
+extensions = [
+    "gfm",
+    "footnote",
+]
+
+# Files/directories excluded from formatting (Python 3.13+)
+exclude = [
+    "CHANGELOG.md",
+    "config/**",
+    ".local/**",
+    "node_modules/**",
+    "custom_components/hacs/**",
+]
