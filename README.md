@@ -22,9 +22,17 @@
 
 ### HACS
 
-> [!NOTE]
-> This integration is **not yet released**. It will be available through HACS once the
-> first version is published. Until then, use manual installation below.
+This integration is not yet included in the default HACS store. Add it as a custom
+repository:
+
+1. Open **HACS** in Home Assistant.
+2. Open the **three-dot menu** in the top-right corner.
+3. Select **Custom repositories**.
+4. Enter `https://github.com/roberteggl/metiundo-home-assistant`.
+5. Select **Integration** as the repository type and click **Add**.
+6. Search for **Metiundo Smart Meter** in HACS and install it.
+
+Updates are published through the [GitHub releases](https://github.com/roberteggl/metiundo-home-assistant/releases).
 
 ### Manual
 
