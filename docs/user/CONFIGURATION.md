@@ -15,6 +15,9 @@ These options are configured during initial setup via the Home Assistant UI.
 | **Email address** | string | Yes      | -       | Your Metiundo account email address |
 | **Password**      | string | Yes      | -       | Your Metiundo account password      |
 
+Cost statistics can also be enabled during initial setup. The initial tariff applies from the
+first day of its configured month.
+
 If the account has multiple supported electricity metering points, the setup flow asks you
 to select one. One config entry exposes one selected metering point.
 
@@ -30,11 +33,25 @@ After initial setup, you can modify settings:
 
 **Available options:**
 
-| Option              | Type    | Default | Description                                              |
-| ------------------- | ------- | ------- | -------------------------------------------------------- |
-| **Update Interval** | number  | 24 h    | How often to refresh the daily API batch (0.25–24 hours) |
-| **Debug Logging**   | boolean | Off     | Enable detailed debug logging for troubleshooting        |
-| **Export Metrics**  | boolean | On      | Create the grid export energy sensor                     |
+| Option                    | Type    | Default        | Description                                              |
+| ------------------------- | ------- | -------------- | -------------------------------------------------------- |
+| **Update Interval**       | number  | 24 h           | How often to refresh the daily API batch (0.25–24 hours) |
+| **Debug Logging**         | boolean | Off            | Enable detailed debug logging for troubleshooting        |
+| **Export Metrics**        | boolean | On             | Create the grid export energy sensor                     |
+| **Cost Statistics**       | boolean | Off            | Create the external grid import cost statistic           |
+| **Working charge**        | number  | 0 ct/kWh       | Variable electricity charge                              |
+| **Standing charge**       | number  | 0 EUR/month    | Fixed monthly standing charge                            |
+| **Tariff Effective From** | date    | First of month | Month in which the tariff starts                         |
+
+When cost statistics are enabled, configure the generated **Grid import cost** statistic as
+the Energy Dashboard's grid cost tracking statistic. Each saved tariff is added to the schedule
+or replaces the tariff for that month. Tariffs must begin on the first day of a month.
+
+The monthly standing charge is added once to the first available hourly bucket of each calendar month.
+Changing an old tariff does not recalculate existing cost statistics. To import history with
+multiple tariffs, add all tariffs first and then run the manual historical import action. A
+historical import rebuilds the requested range from a zero baseline, which also corrects an
+earlier partial-window import when started at the desired earliest date.
 
 ## Services
 
@@ -73,6 +90,10 @@ The integration uses polling to fetch updates from the Metiundo API:
 The Metiundo API publishes a daily batch containing historical data in 15-minute
 intervals. A shorter update interval does not increase data resolution — it only
 requests the same batch more often.
+
+The live energy sensor remains the meter's lifetime cumulative total. Imported long-term
+statistics use the first reading in the imported range as their zero baseline, preventing usage
+from before that range from being assigned to its first day.
 
 ### Initial History Import
 

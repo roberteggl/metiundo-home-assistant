@@ -111,11 +111,12 @@ class MetiundoDataUpdateCoordinator(DataUpdateCoordinator[MetiundoCoordinatorDat
             readings,
             key=lambda item: item.reading_time or datetime.min.replace(tzinfo=UTC),
         )
-        statistics_count, statistics_import_succeeded = async_import_reading_statistics(
+        statistics_count, statistics_import_succeeded = await async_import_reading_statistics(
             self.hass,
             self.config_entry,
             self._metering_point,
             readings,
+            rebuild_statistics=self._historical_import_requested,
         )
         self.last_statistics_count = statistics_count
         self.last_statistics_import_succeeded = statistics_import_succeeded
@@ -176,11 +177,12 @@ class MetiundoDataUpdateCoordinator(DataUpdateCoordinator[MetiundoCoordinatorDat
                 if not readings:
                     _raise_update_failed("No readings were returned for the requested date range")
 
-                statistics_count, statistics_import_succeeded = async_import_reading_statistics(
+                statistics_count, statistics_import_succeeded = await async_import_reading_statistics(
                     self.hass,
                     self.config_entry,
                     self._metering_point,
                     readings,
+                    rebuild_statistics=True,
                 )
                 self.last_statistics_count = statistics_count
                 self.last_statistics_import_succeeded = statistics_import_succeeded

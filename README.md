@@ -2,7 +2,7 @@
 
 > [!NOTE]
 > This is an independent, community-maintained integration and is not affiliated with,
-> endorsed by, or supported by Metiundo.
+> endorsed by, or supported by [Metiundo](https://metiundo.de).
 
 ## Features
 
@@ -10,6 +10,7 @@
 - **Grid import / export energy**: Cumulative smart meter readings (OBIS 1.8.0 / 2.8.0)
 - **15-minute historical readings** from the Metiundo API
 - **Energy Dashboard-compatible** grid import/export sensors
+- **Energy Dashboard-compatible import cost statistics** with working and standing charges
 - **Reconfigurable** credentials and **options flow** (update interval, debug logging)
 - **Diagnostics**: API connection status and integration statistics
 
@@ -46,7 +47,8 @@ Updates are published through the [GitHub releases](https://github.com/robertegg
 2. Click **"+ Add Integration"** → search for "Metiundo Smart Meter"
 3. Enter your Metiundo account **email address** and **password**
 4. Select the electricity metering point to expose
-5. Click **Submit**
+5. Optionally enable cost statistics and enter the first tariff
+6. Click **Submit**
 
 The integration validates your credentials and starts loading your data.
 
@@ -54,16 +56,56 @@ The integration validates your credentials and starts loading your data.
 
 Adjust settings anytime by clicking **Configure** on the integration:
 
-| Name            | Default  | Description                              |
-| --------------- | -------- | ---------------------------------------- |
-| Update Interval | 24 hours | How often to refresh the daily API batch |
-| Debug Logging   | Off      | Enable extra debug logging               |
-| Export Metrics  | On       | Create the grid export energy sensor     |
+| Name                  | Default        | Description                              |
+| --------------------- | -------------- | ---------------------------------------- |
+| Update Interval       | 24 hours       | How often to refresh the daily API batch |
+| Debug Logging         | Off            | Enable extra debug logging               |
+| Export Metrics        | On             | Create the grid export energy sensor     |
+| Cost Statistics       | Off            | Create import cost statistics            |
+| Working charge        | 0 ct/kWh       | Variable electricity charge              |
+| Standing charge       | 0 EUR/month    | Fixed monthly standing charge            |
+| Tariff Effective From | First of month | Month in which the tariff starts         |
+
+Each time cost statistics are enabled and the options are saved, the entered tariff is added to
+the schedule or replaces the tariff for that month. Add historical tariffs before importing the
+corresponding historical data.
 
 During initial setup, you can select **Import data older than the last 48 hours** and choose
 an earliest date. Readings from that date onward are fetched in API-sized chunks and
 imported into Home Assistant's long-term energy statistics. The option is consumed after
 the first successful refresh and does not run again on future reloads.
+
+## Energy Dashboard
+
+The primary purpose of this integration is to make Metiundo's historical meter data
+available in Home Assistant's **Energy dashboard**. The API provides cumulative import
+and export readings in 15-minute intervals, rather than real-time power measurements.
+
+To configure it:
+
+1. Open **Settings** -> **Dashboards** -> **Energy** in Home Assistant.
+2. Add the **Grid import energy** sensor under grid consumption.
+3. If cost statistics are enabled, select the **Grid import cost** statistic under cost tracking.
+4. Add the **Grid export energy** sensor under return to grid, if export data is available.
+5. Save the configuration and allow Home Assistant to process the statistics.
+
+The cost statistic contains the variable working charge and adds the applicable standing charge
+once to the first available hourly bucket of each calendar month. Tariffs change only at month
+boundaries. Existing cost statistics are not recalculated when an old tariff is edited.
+
+For multiple historical tariffs, leave the initial history import disabled, add all tariff entries
+through **Configure**, and then run `metiundo.import_historical_data` for the desired date range.
+Historical imports rebuild the requested statistics range from a zero baseline, so they can also
+correct a previous partial-window import when the start date is set to the earliest desired date.
+
+Historical imports are stored as Home Assistant long-term statistics. They are intended to
+be viewed in the Energy dashboard and may not appear as ordinary time-series data in the
+standard entity History or Logbook views. Enable the initial history import during setup,
+or use `metiundo.import_historical_data` later, to populate older periods.
+
+The live energy sensor continues to show the meter's lifetime cumulative total. Long-term
+statistics use the first reading in each imported range as their zero baseline, so usage from
+before the selected import window is not counted in that window.
 
 ## Entities
 

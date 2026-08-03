@@ -15,17 +15,25 @@ When this file grows too large (>300 lines), consider splitting into:
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from datetime import date
 from typing import Any
 
 import voluptuous as vol
 
 from custom_components.metiundo.api import MetiundoMeteringPoint
 from custom_components.metiundo.const import (
+    CONF_ARBEITSPREIS_CT_PER_KWH,
+    CONF_ENABLE_COST_METRICS,
     CONF_ENABLE_EXPORT_METRICS,
+    CONF_GRUNDPREIS_EUR_PER_MONTH,
     CONF_HISTORY_START_DATE,
     CONF_IMPORT_HISTORICAL_DATA,
     CONF_METERING_POINT_UUID,
+    CONF_TARIFF_EFFECTIVE_FROM,
+    DEFAULT_ARBEITSPREIS_CT_PER_KWH,
+    DEFAULT_ENABLE_COST_METRICS,
     DEFAULT_ENABLE_EXPORT_METRICS,
+    DEFAULT_GRUNDPREIS_EUR_PER_MONTH,
 )
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import selector
@@ -66,6 +74,38 @@ def get_user_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
                 CONF_IMPORT_HISTORICAL_DATA,
                 default=False,
             ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_ENABLE_COST_METRICS,
+                default=DEFAULT_ENABLE_COST_METRICS,
+            ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_ARBEITSPREIS_CT_PER_KWH,
+                default=DEFAULT_ARBEITSPREIS_CT_PER_KWH,
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=100,
+                    step=0.01,
+                    unit_of_measurement="ct/kWh",
+                    mode=selector.NumberSelectorMode.BOX,
+                ),
+            ),
+            vol.Optional(
+                CONF_GRUNDPREIS_EUR_PER_MONTH,
+                default=DEFAULT_GRUNDPREIS_EUR_PER_MONTH,
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=1000,
+                    step=0.01,
+                    unit_of_measurement="EUR/month",
+                    mode=selector.NumberSelectorMode.BOX,
+                ),
+            ),
+            vol.Optional(
+                CONF_TARIFF_EFFECTIVE_FROM,
+                default=date.today().replace(day=1),
+            ): selector.DateSelector(),
         },
     )
 

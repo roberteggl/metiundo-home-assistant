@@ -9,11 +9,15 @@ This guide will help you install and set up the Metiundo Smart Meter custom inte
 - A Metiundo account with access to the Metiundo API
 - Network connectivity to `api.metiundo.de`
 
-> [!NOTE]
-> This integration is not yet released. It will be available through HACS once the
-> first version is published. Until then, use manual installation.
-
 ## Installation
+
+### HACS custom repository
+
+1. Open **HACS** in Home Assistant.
+2. Open the **three-dot menu** and select **Custom repositories**.
+3. Enter `https://github.com/roberteggl/metiundo-home-assistant`.
+4. Select **Integration** as the repository type and click **Add**.
+5. Search for **Metiundo Smart Meter** and install it.
 
 ### Manual Installation
 
@@ -55,6 +59,7 @@ After successful setup, the integration creates:
 - **Binary Sensor:** API connection status (`binary_sensor.*_api_connectivity`)
 - **Energy Sensor:** Grid import energy (`sensor.*_grid_import_energy`), when available
 - **Energy Sensor:** Grid export energy (`sensor.*_grid_export_energy`), when available
+- **External statistic:** Grid import cost, when cost statistics are enabled
 - **Diagnostic Sensors:** Last reading time and reading quality
 - **Disabled Diagnostic Sensors:** Address, MeLo ID, and MaLo consumption/production IDs
 
