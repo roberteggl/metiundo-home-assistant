@@ -5,12 +5,12 @@
     "recorder"
   ],
   "codeowners": [
-    "@Robert27"
+    "@roberteggl"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/Robert27/homeassistant-metiundo",
+  "documentation": "https://github.com/roberteggl/metiundo-home-assistant",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/Robert27/homeassistant-metiundo/issues",
+  "issue_tracker": "https://github.com/roberteggl/metiundo-home-assistant/issues",
   "version": "0.1.0"
 }

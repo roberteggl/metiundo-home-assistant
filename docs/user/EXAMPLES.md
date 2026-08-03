@@ -79,4 +79,4 @@ show_state: true
 
 - [Configuration Reference](./CONFIGURATION.md) - All configuration options
 - [Getting Started](./GETTING_STARTED.md) - Installation and initial setup
-- [GitHub Issues](https://github.com/Robert27/homeassistant-metiundo/issues) - Report problems
+- [GitHub Issues](https://github.com/roberteggl/metiundo-home-assistant/issues) - Report problems

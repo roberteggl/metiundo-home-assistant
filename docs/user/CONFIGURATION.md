@@ -142,4 +142,4 @@ If configuration changes aren't persisted:
 
 - [Getting Started](./GETTING_STARTED.md) - Installation and initial setup
 - [Examples](./EXAMPLES.md) - Automation and dashboard examples
-- [GitHub Issues](https://github.com/Robert27/homeassistant-metiundo/issues) - Report problems
+- [GitHub Issues](https://github.com/roberteggl/metiundo-home-assistant/issues) - Report problems

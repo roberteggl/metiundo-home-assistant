@@ -17,7 +17,7 @@ This guide will help you install and set up the Metiundo Smart Meter custom inte
 
 ### Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/Robert27/homeassistant-metiundo/releases)
+1. Download the latest release from the [releases page](https://github.com/roberteggl/metiundo-home-assistant/releases)
 2. Extract the `metiundo` folder from the archive
 3. Copy it to `custom_components/metiundo/` in your Home Assistant configuration directory
 4. Restart Home Assistant
@@ -135,11 +135,11 @@ Add this to `configuration.yaml`, restart, and reproduce the issue. Check logs f
 
 - See [CONFIGURATION.md](./CONFIGURATION.md) for detailed configuration options
 - See [EXAMPLES.md](./EXAMPLES.md) for more automation examples
-- Report issues at [GitHub Issues](https://github.com/Robert27/homeassistant-metiundo/issues)
+- Report issues at [GitHub Issues](https://github.com/roberteggl/metiundo-home-assistant/issues)
 
 ## Support
 
 For help and discussion:
 
-- [GitHub Discussions](https://github.com/Robert27/homeassistant-metiundo/discussions)
+- [GitHub Discussions](https://github.com/roberteggl/metiundo-home-assistant/discussions)
 - [Home Assistant Community Forum](https://community.home-assistant.io/)

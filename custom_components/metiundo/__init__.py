@@ -7,7 +7,7 @@ This integration provides access to your Metiundo smart meter data:
 - Data update coordinator pattern for efficient data fetching
 
 For more details about this integration, please refer to:
-https://github.com/Robert27/homeassistant-metiundo
+https://github.com/roberteggl/metiundo-home-assistant
 
 For integration development guidelines:
 https://developers.home-assistant.io/docs/creating_integration_manifest

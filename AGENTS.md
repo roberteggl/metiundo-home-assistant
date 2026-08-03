@@ -10,7 +10,7 @@ This is a Home Assistant custom integration that was generated from a blueprint 
 
 - **Domain:** `metiundo`
 - **Title:** Metiundo Smart Meter
-- **Repository:** Robert27/homeassistant-metiundo
+- **Repository:** roberteggl/metiundo-home-assistant
 
 **Key directories:**
 

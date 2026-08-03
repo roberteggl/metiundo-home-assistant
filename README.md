@@ -1,12 +1,5 @@
 # Metiundo Smart Meter
 
-[![GitHub Release][releases-shield]][releases]
-[![GitHub Activity][commits-shield]][commits]
-[![License][license-shield]](LICENSE)
-
-[![hacs][hacsbadge]][hacs]
-![Project Maintenance][maintenance-shield]
-
 > [!NOTE]
 > This is an independent, community-maintained integration and is not affiliated with,
 > endorsed by, or supported by Metiundo.
@@ -16,7 +9,7 @@
 - **Easy setup** through the UI - no YAML required
 - **Grid import / export energy**: Cumulative smart meter readings (OBIS 1.8.0 / 2.8.0)
 - **15-minute historical readings** from the Metiundo API
-- **Energy Dashboard compatible** grid import/export sensors
+- **Energy Dashboard-compatible** grid import/export sensors
 - **Reconfigurable** credentials and **options flow** (update interval, debug logging)
 - **Diagnostics**: API connection status and integration statistics
 
@@ -53,11 +46,11 @@ The integration validates your credentials and starts loading your data.
 
 Adjust settings anytime by clicking **Configure** on the integration:
 
-| Name             | Default  | Description                              |
-| ---------------- | -------- | ---------------------------------------- |
-| Update Interval  | 24 hours | How often to refresh the daily API batch |
-| Enable Debugging | Off      | Enable extra debug logging               |
-| Export Metrics   | On       | Create the grid export energy sensor     |
+| Name            | Default  | Description                              |
+| --------------- | -------- | ---------------------------------------- |
+| Update Interval | 24 hours | How often to refresh the daily API batch |
+| Debug Logging   | Off      | Enable extra debug logging               |
+| Export Metrics  | On       | Create the grid export energy sensor     |
 
 During initial setup, you can select **Import data older than the last 48 hours** and choose
 an earliest date. Readings from that date onward are fetched in API-sized chunks and
@@ -80,7 +73,7 @@ the first successful refresh and does not run again on future reloads.
 Manually refresh data from the API without waiting for the update interval:
 
 ```yaml
-service: metiundo.reload_data
+action: metiundo.reload_data
 ```
 
 ### `metiundo.import_historical_data`
@@ -109,7 +102,7 @@ If your credentials expire or change, Home Assistant will automatically prompt y
 3. Click **"Reconfigure"** or follow the prompt
 4. Enter your updated credentials and click **Submit**
 
-You can also update credentials at any time via the **3 dots menu** → **Reconfigure**.
+You can also update credentials at any time via the **three-dot menu** → **Reconfigure**.
 
 ### Debug Logging
 
@@ -126,7 +119,7 @@ logger:
 
 1. Check the **API Connection** binary sensor - it should be "On"
 2. Verify your network connection and credentials
-3. Download integration diagnostics (Settings → Devices & Services → Metiundo Smart Meter → 3 dots → Download diagnostics)
+3. Download integration diagnostics (Settings → Devices & Services → Metiundo Smart Meter → three-dot menu → Download diagnostics)
 
 ## Contributing
 
@@ -137,19 +130,3 @@ For development setup and validation, see the [development docs](docs/developmen
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-______________________________________________________________________
-
-## Attribution
-
-Project structure originally based on
-[hacs.integration_blueprint](https://github.com/jpawlowski/hacs.integration_blueprint).
-
-[commits]: https://github.com/Robert27/homeassistant-metiundo/commits/main
-[commits-shield]: https://img.shields.io/github/commit-activity/y/Robert27/homeassistant-metiundo.svg?style=for-the-badge
-[hacs]: https://github.com/hacs/integration
-[hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
-[license-shield]: https://img.shields.io/github/license/Robert27/homeassistant-metiundo.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/badge/maintainer-Robert27-blue.svg?style=for-the-badge
-[releases]: https://github.com/Robert27/homeassistant-metiundo/releases
-[releases-shield]: https://img.shields.io/github/release/Robert27/homeassistant-metiundo.svg?style=for-the-badge
