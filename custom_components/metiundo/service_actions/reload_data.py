@@ -54,9 +54,9 @@ async def async_handle_reload_data(
         end_time = dt_util.now()
         duration_ms = (end_time - start_time).total_seconds() * 1000
 
-        # Count records in coordinator data
+        # The coordinator contains one current reading for the selected point.
         data_size = len(str(coordinator.data)) if coordinator.data else 0
-        record_count = len(coordinator.data) if isinstance(coordinator.data, dict) else 0
+        record_count = 1 if coordinator.data else 0
 
         response_data: ServiceResponse = {
             "status": "success",

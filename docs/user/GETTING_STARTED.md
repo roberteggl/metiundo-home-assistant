@@ -30,11 +30,17 @@ After installation, add the integration:
 2. Click **+ Add Integration**
 3. Search for "Metiundo Smart Meter"
 4. Enter your Metiundo account credentials:
-   - **Username:** Your Metiundo username
+   - **Email address:** Your Metiundo account email address
    - **Password:** Your Metiundo password
-5. Click **Submit**
+5. If your account has multiple electricity metering points, select one.
+6. Optionally enable **Import data older than the last 48 hours**, then choose the earliest date to import.
+7. Click **Submit**
 
 The integration validates your credentials and starts loading your smart meter data.
+
+The optional history import fetches data from the selected date in chunks during the first
+refresh only. It can take longer than a normal setup and is not repeated after a successful
+import.
 
 > [!IMPORTANT]
 > This integration reads **historical** meter data from the Metiundo API in
@@ -47,8 +53,10 @@ After successful setup, the integration creates:
 ### Entities
 
 - **Binary Sensor:** API connection status (`binary_sensor.*_api_connectivity`)
-
-Energy sensors (cumulative grid import/export) will be added in a future release.
+- **Energy Sensor:** Grid import energy (`sensor.*_grid_import_energy`), when available
+- **Energy Sensor:** Grid export energy (`sensor.*_grid_export_energy`), when available
+- **Diagnostic Sensors:** Last reading time and reading quality
+- **Disabled Diagnostic Sensors:** Address, MeLo ID, and MaLo consumption/production IDs
 
 ## First Steps
 

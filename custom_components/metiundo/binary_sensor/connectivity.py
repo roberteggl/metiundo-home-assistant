@@ -48,7 +48,18 @@ class MetiundoConnectivitySensor(BinarySensorEntity, MetiundoEntity):
     @property
     def extra_state_attributes(self) -> dict[str, str | None]:
         """Return additional state attributes."""
-        return {
+        attributes: dict[str, str | None] = {
             "update_interval": str(self.coordinator.update_interval),
             "api_endpoint": API_BASE_URL,
         }
+        if self.coordinator.data:
+            point = self.coordinator.data.metering_point
+            reading = self.coordinator.data.latest_reading
+            attributes.update(
+                {
+                    "metering_point_uuid": point.uuid,
+                    "reading_time": reading.reading_time.isoformat() if reading.reading_time else None,
+                    "received_status": reading.received_status,
+                },
+            )
+        return attributes

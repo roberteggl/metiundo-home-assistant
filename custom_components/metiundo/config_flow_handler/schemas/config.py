@@ -14,11 +14,19 @@ When this file grows too large (>300 lines), consider splitting into:
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 import voluptuous as vol
 
+from custom_components.metiundo.api import MetiundoMeteringPoint
+from custom_components.metiundo.const import (
+    CONF_ENABLE_EXPORT_METRICS,
+    CONF_HISTORY_START_DATE,
+    CONF_IMPORT_HISTORICAL_DATA,
+    CONF_METERING_POINT_UUID,
+    DEFAULT_ENABLE_EXPORT_METRICS,
+)
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import selector
 
@@ -50,6 +58,14 @@ def get_user_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
                     type=selector.TextSelectorType.PASSWORD,
                 ),
             ),
+            vol.Optional(
+                CONF_ENABLE_EXPORT_METRICS,
+                default=DEFAULT_ENABLE_EXPORT_METRICS,
+            ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_IMPORT_HISTORICAL_DATA,
+                default=False,
+            ): selector.BooleanSelector(),
         },
     )
 
@@ -86,6 +102,15 @@ def get_reconfigure_schema(username: str) -> vol.Schema:
     )
 
 
+def get_history_schema() -> vol.Schema:
+    """Get schema for the one-time historical import date."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_HISTORY_START_DATE): selector.DateSelector(),
+        },
+    )
+
+
 def get_reauth_schema(username: str) -> vol.Schema:
     """
     Get schema for reauthentication step.
@@ -118,7 +143,30 @@ def get_reauth_schema(username: str) -> vol.Schema:
     )
 
 
+def get_metering_point_schema(points: Sequence[MetiundoMeteringPoint]) -> vol.Schema:
+    """Get a schema for selecting one accessible electricity metering point."""
+    options = [
+        selector.SelectOptionDict(
+            value=point.uuid,
+            label=point.name,
+        )
+        for point in points
+    ]
+    return vol.Schema(
+        {
+            vol.Required(CONF_METERING_POINT_UUID): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                ),
+            ),
+        },
+    )
+
+
 __all__ = [
+    "get_history_schema",
+    "get_metering_point_schema",
     "get_reauth_schema",
     "get_reconfigure_schema",
     "get_user_schema",

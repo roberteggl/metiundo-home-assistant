@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from custom_components.metiundo.const import ATTRIBUTION, MANUFACTURER
+from custom_components.metiundo.const import ATTRIBUTION, MANUFACTURER, PORTAL_URL
 from custom_components.metiundo.coordinator import MetiundoDataUpdateCoordinator
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -57,6 +57,7 @@ class MetiundoEntity(CoordinatorEntity[MetiundoDataUpdateCoordinator]):
         self.entity_description = entity_description
         # Include entity description key in unique_id to support multiple entities
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        metering_point = coordinator.data.metering_point if coordinator.data else None
         self._attr_device_info = DeviceInfo(
             identifiers={
                 (
@@ -64,7 +65,9 @@ class MetiundoEntity(CoordinatorEntity[MetiundoDataUpdateCoordinator]):
                     coordinator.config_entry.entry_id,
                 ),
             },
-            name=coordinator.config_entry.title,
+            name=metering_point.name if metering_point else coordinator.config_entry.title,
             manufacturer=MANUFACTURER,
-            model="Smart Meter",
+            model=metering_point.meter_type if metering_point else "Smart Meter",
+            serial_number=metering_point.sensor_identifier if metering_point else None,
+            configuration_url=PORTAL_URL,
         )

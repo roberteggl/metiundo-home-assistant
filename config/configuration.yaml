@@ -9,6 +9,8 @@
 homeassistant:
   debug: true
 
+energy:
+
 # Debugging integration
 # https://www.home-assistant.io/integrations/debugpy/
 debugpy:

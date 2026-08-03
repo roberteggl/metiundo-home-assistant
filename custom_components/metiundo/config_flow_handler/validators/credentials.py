@@ -13,14 +13,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from custom_components.metiundo.api import MetiundoApiClient
+from custom_components.metiundo.api import MetiundoApiClient, MetiundoMeteringPoint
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 
-async def validate_credentials(hass: HomeAssistant, username: str, password: str) -> None:
+async def validate_credentials(
+    hass: HomeAssistant,
+    username: str,
+    password: str,
+) -> list[MetiundoMeteringPoint]:
     """
     Validate user credentials by testing API connection.
 
@@ -28,6 +32,9 @@ async def validate_credentials(hass: HomeAssistant, username: str, password: str
         hass: Home Assistant instance.
         username: The username to validate.
         password: The password to validate.
+
+    Returns:
+        Metering points accessible with the credentials.
 
     Raises:
         MetiundoApiClientAuthenticationError: If credentials are invalid.
@@ -40,7 +47,8 @@ async def validate_credentials(hass: HomeAssistant, username: str, password: str
         password=password,
         session=async_create_clientsession(hass),
     )
-    await client.async_get_data()  # May raise authentication/communication errors
+    await client.async_login()
+    return await client.async_get_metering_points()
 
 
 __all__ = [

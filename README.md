@@ -16,13 +16,14 @@
 - **Easy setup** through the UI - no YAML required
 - **Grid import / export energy**: Cumulative smart meter readings (OBIS 1.8.0 / 2.8.0)
 - **15-minute historical readings** from the Metiundo API
-- **Energy Dashboard compatible** sensors (planned)
+- **Energy Dashboard compatible** grid import/export sensors
 - **Reconfigurable** credentials and **options flow** (update interval, debug logging)
 - **Diagnostics**: API connection status and integration statistics
 
 > [!IMPORTANT]
 > This integration reads **historical** meter data from the Metiundo API. It does **not**
-> provide real-time power readings. Data is available in 15-minute intervals.
+> provide real-time power readings. Data is available in 15-minute intervals, but new API
+> batches are typically published every 24 hours.
 
 ## Installation
 
@@ -42,8 +43,9 @@
 
 1. Go to **Settings** → **Devices & Services**
 2. Click **"+ Add Integration"** → search for "Metiundo Smart Meter"
-3. Enter your Metiundo account **username** and **password**
-4. Click **Submit**
+3. Enter your Metiundo account **email address** and **password**
+4. Select the electricity metering point to expose
+5. Click **Submit**
 
 The integration validates your credentials and starts loading your data.
 
@@ -51,19 +53,25 @@ The integration validates your credentials and starts loading your data.
 
 Adjust settings anytime by clicking **Configure** on the integration:
 
-| Name             | Default | Description                |
-| ---------------- | ------- | -------------------------- |
-| Update Interval  | 1 hour  | How often to refresh data  |
-| Enable Debugging | Off     | Enable extra debug logging |
+| Name             | Default  | Description                              |
+| ---------------- | -------- | ---------------------------------------- |
+| Update Interval  | 24 hours | How often to refresh the daily API batch |
+| Enable Debugging | Off      | Enable extra debug logging               |
+| Export Metrics   | On       | Create the grid export energy sensor     |
+
+During initial setup, you can select **Import data older than the last 48 hours** and choose
+an earliest date. Readings from that date onward are fetched in API-sized chunks and
+imported into Home Assistant's long-term energy statistics. The option is consumed after
+the first successful refresh and does not run again on future reloads.
 
 ## Entities
 
-| Platform        | Description                                      |
-| --------------- | ------------------------------------------------ |
-| `sensor`        | Energy readings (grid import / export) (planned) |
-| `binary_sensor` | API connection status                            |
+| Platform        | Description                                             |
+| --------------- | ------------------------------------------------------- |
+| `sensor`        | Cumulative import/export energy and reading diagnostics |
+| `binary_sensor` | API connection status                                   |
 
-- **API Connection**: On when connected and receiving data, off when the connection is lost or authentication failed. Attributes show the update interval and API endpoint.
+- **API Connection**: On when connected and receiving data, off when the connection is lost or authentication failed. Attributes show the selected metering point, reading timestamp, update interval, and API endpoint.
 
 ## Service
 
@@ -74,6 +82,21 @@ Manually refresh data from the API without waiting for the update interval:
 ```yaml
 service: metiundo.reload_data
 ```
+
+### `metiundo.import_historical_data`
+
+Import a selected date range without removing and re-adding the integration:
+
+```yaml
+action: metiundo.import_historical_data
+data:
+  config_entry_id: "YOUR_CONFIG_ENTRY_ID"
+  start_date: "2024-01-01"
+```
+
+The optional `end_date` defaults to the latest available reading. The action returns
+the number of API chunks, readings, and statistics imported. Overlapping historical
+data is safe to re-import.
 
 ## Troubleshooting
 

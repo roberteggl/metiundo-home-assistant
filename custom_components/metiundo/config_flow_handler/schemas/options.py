@@ -17,7 +17,12 @@ from typing import Any
 
 import voluptuous as vol
 
-from custom_components.metiundo.const import DEFAULT_ENABLE_DEBUGGING, DEFAULT_UPDATE_INTERVAL_HOURS
+from custom_components.metiundo.const import (
+    CONF_ENABLE_EXPORT_METRICS,
+    DEFAULT_ENABLE_DEBUGGING,
+    DEFAULT_ENABLE_EXPORT_METRICS,
+    DEFAULT_UPDATE_INTERVAL_HOURS,
+)
 from homeassistant.helpers import selector
 
 
@@ -50,6 +55,10 @@ def get_options_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
             vol.Optional(
                 "enable_debugging",
                 default=defaults.get("enable_debugging", DEFAULT_ENABLE_DEBUGGING),
+            ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_ENABLE_EXPORT_METRICS,
+                default=defaults.get(CONF_ENABLE_EXPORT_METRICS, DEFAULT_ENABLE_EXPORT_METRICS),
             ): selector.BooleanSelector(),
         },
     )

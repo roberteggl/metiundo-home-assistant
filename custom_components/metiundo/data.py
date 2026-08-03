@@ -13,6 +13,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from .api.models import MetiundoMeteringPoint, MetiundoReading
+
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.loader import Integration
@@ -35,3 +37,11 @@ class MetiundoData:
     client: MetiundoApiClient
     coordinator: MetiundoDataUpdateCoordinator
     integration: Integration
+
+
+@dataclass(frozen=True)
+class MetiundoCoordinatorData:
+    """Normalized data shared by all entities for one metering point."""
+
+    metering_point: MetiundoMeteringPoint
+    latest_reading: MetiundoReading

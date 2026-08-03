@@ -1,12 +1,15 @@
 {
   "domain": "metiundo",
   "name": "Metiundo Smart Meter",
+  "after_dependencies": [
+    "recorder"
+  ],
   "codeowners": [
     "@Robert27"
   ],
   "config_flow": true,
   "documentation": "https://github.com/Robert27/homeassistant-metiundo",
-  "integration_type": "hub",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/Robert27/homeassistant-metiundo/issues",
   "version": "0.1.0"

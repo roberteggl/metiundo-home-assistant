@@ -7,8 +7,8 @@ Replace entity IDs like `binary_sensor.metiundo_smart_meter_*` with your actual
 entity IDs after setting up the integration.
 
 > [!NOTE]
-> Energy sensors (grid import/export) are planned for a future release. Once
-> available, you can use them in the Home Assistant Energy Dashboard.
+> Grid import/export sensors can be used in the Home Assistant Energy Dashboard when the
+> selected metering point provides the corresponding register.
 
 ## Automations
 
@@ -43,6 +43,16 @@ automation:
 ```
 
 ## Dashboard Cards
+
+### Energy sensors
+
+```yaml
+type: entities
+title: Metiundo energy
+entities:
+  - sensor.metiundo_smart_meter_grid_import_energy
+  - sensor.metiundo_smart_meter_grid_export_energy
+```
 
 ### Device summary — entities card
 

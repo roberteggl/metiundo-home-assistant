@@ -109,6 +109,7 @@ async def async_setup_entry(
         username=entry.data[CONF_USERNAME],  # From config flow setup
         password=entry.data[CONF_PASSWORD],  # From config flow setup
         session=async_get_clientsession(hass),
+        enable_debugging=entry.options.get("enable_debugging", False),
     )
 
     # Initialize coordinator with config_entry

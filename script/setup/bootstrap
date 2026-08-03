@@ -243,7 +243,7 @@ _download "${HA_CORE_BASE_URL}/requirements_all.txt" "/tmp/requirements_all.txt"
 # Filter out packages that fail to build on modern macOS (see https://github.com/home-assistant/core/issues/...).
 # pyitachip2ir is only needed by the unused iTach IR integration and fails to compile with the macOS SDK.
 if [[ "$(uname -s)" == "Darwin" ]]; then
-    grep -v '^pyitachip2ir==' /tmp/requirements_all.txt > /tmp/requirements_all.filtered.txt
+    grep -v '^pyitachip2ir==' /tmp/requirements_all.txt >/tmp/requirements_all.filtered.txt
     mv /tmp/requirements_all.filtered.txt /tmp/requirements_all.txt
 fi
 uv pip install --requirement "/tmp/requirements_all.txt"

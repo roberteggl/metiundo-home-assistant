@@ -23,9 +23,9 @@ ______________________________________________________________________
 **Context:** Metiundo is a cloud service exposing smart meter data via a REST API
 (`https://api.metiundo.de`). There is no local device to discover.
 
-**Decision:** Treat the integration as a `service`-type integration with `integration_type: hub`
-in the manifest, configured via config flow with Metiundo account credentials. Single account
-per config entry; the account username serves as the unique ID.
+**Decision:** Treat the integration as a `service`-type integration with `integration_type: service`
+in the manifest, configured via config flow with Metiundo account credentials. One selected
+electricity metering point is exposed per config entry; the account email serves as the unique ID.
 
 **Rationale:**
 
@@ -60,8 +60,8 @@ energy as Energy Dashboard-compatible sensors. Do not imply real-time power read
 
 **Consequences:**
 
-- Planned sensors: grid import/export energy (kWh), calculated 15-minute average power (kW)
-- Optionally support historical-statistics import for the long-term statistics dashboard
+- Implemented sensors: grid import/export energy (kWh), when the selected point provides them
+- No power sensors are exposed because the API does not provide current or frequently updated power data
 - Update interval minimum is 15 minutes (matches data resolution)
 
 ______________________________________________________________________

@@ -28,10 +28,10 @@ fi
 run_hook "markdown-check" "pre"
 
 log_header "Checking Markdown format (mdformat)"
-mdformat --check *.md docs .github
+mdformat --check ./*.md docs .github
 
 log_header "Checking Markdown lint (pymarkdownlint)"
-pymarkdown --config .pymarkdown scan -r *.md docs .github
+pymarkdown --config .pymarkdown scan -r ./*.md docs .github
 
 run_hook "markdown-check" "post"
 log_success "Markdown check completed"

@@ -3,16 +3,32 @@
     "step": {
       "user": {
         "title": "Metiundo Smart Meter",
-        "description": "Connect your Metiundo account to Home Assistant. The integration provides access to your smart meter readings (cumulative grid import/export energy) via the Metiundo API.\n\nIf you need help with the configuration have a look at the [documentation]({documentation_url}).",
+        "description": "Connect your Metiundo account to Home Assistant. The integration provides access to one selected electricity metering point (cumulative grid import/export energy) via the Metiundo API.\n\nIf you need help with the configuration have a look at the [documentation]({documentation_url}).",
         "data": {
-          "username": "Username",
-          "password": "Password"
+          "username": "Email address",
+          "password": "Password",
+          "enable_export_metrics": "Enable export metrics",
+          "import_historical_data": "Import data older than the last 48 hours"
+        }
+      },
+      "history": {
+        "title": "Import historical data",
+        "description": "Choose the earliest date to import. Data from this date through the latest available API reading will be imported once during setup.",
+        "data": {
+          "history_start_date": "Import data from"
+        }
+      },
+      "metering_point": {
+        "title": "Select metering point",
+        "description": "Choose the electricity metering point to expose in Home Assistant.",
+        "data": {
+          "metering_point_uuid": "Metering point"
         }
       },
       "reconfigure": {
         "description": "Update the credentials for this integration.",
         "data": {
-          "username": "Username",
+          "username": "Email address",
           "password": "Password"
         }
       },
@@ -20,7 +36,7 @@
         "title": "Reauthenticate Integration",
         "description": "The credentials for {username} are no longer valid. Please provide updated credentials to restore access.",
         "data": {
-          "username": "Username",
+          "username": "Email address",
           "password": "Password"
         }
       }
@@ -28,10 +44,16 @@
     "error": {
       "auth": "Username/Password is wrong.",
       "connection": "Unable to connect to the server.",
+      "no_metering_points": "No supported electricity metering points are available for this account.",
+      "invalid_metering_point": "Select a valid metering point.",
+      "invalid_history_start_date": "Enter a valid start date.",
+      "history_start_date_too_recent": "Choose a date at least 48 hours ago.",
       "unknown": "Unknown error occurred."
     },
     "abort": {
-      "already_configured": "This entry is already configured."
+      "already_configured": "This entry is already configured.",
+      "no_metering_points": "No supported electricity metering points are available for this account.",
+      "unknown": "The configuration flow is no longer valid."
     }
   },
   "options": {
@@ -41,11 +63,13 @@
         "description": "Customize how this integration operates.",
         "data": {
           "update_interval_hours": "Update interval (hours)",
-          "enable_debugging": "Enable debug logging"
+          "enable_debugging": "Enable debug logging",
+          "enable_export_metrics": "Enable export metrics"
         },
         "data_description": {
           "update_interval_hours": "How often to refresh data from the API (0.25 to 24 hours)",
-          "enable_debugging": "Enable detailed debug logging for troubleshooting"
+          "enable_debugging": "Enable detailed debug logging for troubleshooting",
+          "enable_export_metrics": "Create the grid export energy sensor"
         }
       }
     }
@@ -54,8 +78,11 @@
     "authentication_failed": {
       "message": "Authentication failed during data update."
     },
-    "update_failed": {
-      "message": "Failed to update data from the server."
+        "update_failed": {
+          "message": "Failed to update data from the server."
+        },
+        "rate_limited": {
+          "message": "The Metiundo API rate limit was exceeded. Retrying later."
     }
   },
   "entity": {
@@ -63,9 +90,43 @@
       "api_connectivity": {
         "name": "API Connection"
       }
+    },
+    "sensor": {
+      "grid_import_energy": {
+        "name": "Grid import energy"
+      },
+      "grid_export_energy": {
+        "name": "Grid export energy"
+      },
+      "last_reading_time": {
+        "name": "Last reading time"
+      },
+      "reading_quality": {
+        "name": "Reading quality"
+      },
+      "metering_point_address": {
+        "name": "Metering point address"
+      },
+      "melo": {
+        "name": "MeLo ID"
+      },
+      "malo_consumption": {
+        "name": "MaLo ID consumption"
+      },
+      "malo_production": {
+        "name": "MaLo ID production"
+      }
     }
   },
   "issues": {
+    "historical_import_failed": {
+      "title": "Historical data import failed",
+      "description": "Metiundo could not complete the requested historical data import. The integration will retry while the import remains pending. Details: {error}"
+    },
+    "no_recent_data": {
+      "title": "No recent Metiundo data",
+      "description": "The Metiundo API did not provide a usable recent reading. Check the API connection and diagnostics. Details: {error}"
+    },
     "deprecated_api_endpoint": {
       "title": "Deprecated API Endpoint",
       "fix_flow": {

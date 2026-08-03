@@ -81,9 +81,17 @@ else
 fi
 echo ""
 
+PYTEST_COMMAND=(pytest)
+if [[ ${#COVERAGE_ARGS[@]} -gt 0 ]]; then
+    PYTEST_COMMAND+=("${COVERAGE_ARGS[@]}")
+fi
+if [[ ${#PYTEST_ARGS[@]} -gt 0 ]]; then
+    PYTEST_COMMAND+=("${PYTEST_ARGS[@]}")
+fi
+
 run_hook "test" "pre"
 echo ""
-pytest "${COVERAGE_ARGS[@]}" "${PYTEST_ARGS[@]}"
+"${PYTEST_COMMAND[@]}"
 
 run_hook "test" "post"
 

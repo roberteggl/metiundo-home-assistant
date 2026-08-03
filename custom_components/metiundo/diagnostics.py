@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from custom_components.metiundo.const import API_BASE_URL
+from custom_components.metiundo.const import API_BASE_URL, CONF_IMPORT_HISTORICAL_DATA
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.redact import async_redact_data
@@ -72,7 +72,24 @@ async def async_get_config_entry_diagnostics(
     coordinator_info = {
         "last_update_success": coordinator.last_update_success,
         "update_interval": str(coordinator.update_interval),
-        "data_keys": list(coordinator.data.keys()) if isinstance(coordinator.data, dict) else None,
+        "has_data": coordinator.data is not None,
+        "last_fetch_range_start": (
+            coordinator.last_fetch_range_start.isoformat() if coordinator.last_fetch_range_start else None
+        ),
+        "last_fetch_range_end": (
+            coordinator.last_fetch_range_end.isoformat() if coordinator.last_fetch_range_end else None
+        ),
+        "last_fetch_reading_count": coordinator.last_fetch_reading_count,
+        "last_statistics_count": coordinator.last_statistics_count,
+        "last_statistics_import_succeeded": coordinator.last_statistics_import_succeeded,
+        "historical_import_pending": bool(entry.options.get(CONF_IMPORT_HISTORICAL_DATA, False)),
+        "historical_import_start_date": coordinator.last_historical_import_start_date,
+        "historical_import_completed_at": (
+            coordinator.last_historical_import_completed_at.isoformat()
+            if coordinator.last_historical_import_completed_at
+            else None
+        ),
+        "historical_import_error": coordinator.last_historical_import_error,
     }
 
     # API client information (no sensitive data)
@@ -111,15 +128,19 @@ async def async_get_config_entry_diagnostics(
     }
 
     # Current data sample (sanitized)
-    data_sample = {}
+    data_sample: dict[str, Any] = {}
     if coordinator.data:
-        if isinstance(coordinator.data, dict):
-            # Include sample data but sanitize sensitive info
-            data_sample = {
-                "reading_count": len(coordinator.data.get("readings", [])),
-                "has_energy_out": "energyOut" in coordinator.data,
-                "has_energy_in": "energyIn" in coordinator.data,
-            }
+        reading = coordinator.data.latest_reading
+        point = coordinator.data.metering_point
+        data_sample = {
+            "metering_point_uuid": point.uuid,
+            "meter_type": point.meter_type,
+            "available_fields": sorted(point.available_fields),
+            "reading_time": reading.reading_time.isoformat() if reading.reading_time else None,
+            "has_energy_out": reading.energy_out_mwh is not None,
+            "has_energy_in": reading.energy_in_mwh is not None,
+            "received_status": reading.received_status,
+        }
 
     return {
         "entry": entry_info,

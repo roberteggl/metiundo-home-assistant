@@ -74,6 +74,9 @@ if [ -n "${HA_VERSION:-}" ]; then
         log_error "Could not resolve HA version '${HA_VERSION}' from PyPI"
         exit 1
     fi
+elif [ -x "$PWD/.local/ha-venv/bin/python3" ]; then
+    # Prefer the project environment so local validation uses its HA version.
+    HA_VERSION_TAG=$("$PWD/.local/ha-venv/bin/python3" -c "from homeassistant.const import __version__; print(__version__)" 2>/dev/null || true)
 elif command -v python3 >/dev/null 2>&1; then
     # Detect from installed homeassistant package
     HA_VERSION_TAG=$(python3 -c "from homeassistant.const import __version__; print(__version__)" 2>/dev/null || true)
@@ -95,6 +98,9 @@ while [[ $# -gt 0 ]]; do
     case $1 in
     --update)
         UPDATE_CORE=true
+        shift
+        ;;
+    --no-update)
         shift
         ;;
     --skip-plugins)

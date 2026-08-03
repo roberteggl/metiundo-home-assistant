@@ -19,14 +19,21 @@ Coordinator exception mapping:
 
 from .client import (
     MetiundoApiClient,
+    MetiundoApiClientAccessError,
     MetiundoApiClientAuthenticationError,
     MetiundoApiClientCommunicationError,
     MetiundoApiClientError,
+    MetiundoApiClientRateLimitError,
 )
+from .models import MetiundoMeteringPoint, MetiundoReading
 
 __all__ = [
     "MetiundoApiClient",
+    "MetiundoApiClientAccessError",
     "MetiundoApiClientAuthenticationError",
     "MetiundoApiClientCommunicationError",
     "MetiundoApiClientError",
+    "MetiundoApiClientRateLimitError",
+    "MetiundoMeteringPoint",
+    "MetiundoReading",
 ]

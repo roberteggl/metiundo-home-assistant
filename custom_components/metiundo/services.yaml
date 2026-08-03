@@ -4,3 +4,27 @@
 reload_data:
   name: Reload Data
   description: Force a refresh of the integration data from the API
+
+import_historical_data:
+  name: Import Historical Data
+  description: Fetch and import a selected historical date range into Home Assistant long-term energy statistics
+  fields:
+    config_entry_id:
+      name: Config entry
+      description: The Metiundo config entry to import data for
+      required: true
+      selector:
+        config_entry:
+          integration: metiundo
+    start_date:
+      name: Start date
+      description: Earliest date to import
+      required: true
+      selector:
+        date: {}
+    end_date:
+      name: End date
+      description: Optional last date to import; defaults to the latest available reading
+      required: false
+      selector:
+        date: {}

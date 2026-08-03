@@ -95,8 +95,7 @@ print(sorted(versions, key=key)[-1] if versions else "")
 #   resolve_ha_version HA_VERSION "2026.4.3"    # → "2026.4.3" (no-op)
 #   resolve_ha_version HA_VERSION "2026.4.0b1"  # → "2026.4.0b1" (no-op)
 resolve_ha_version() {
-    # shellcheck disable=SC2178  # intentional nameref assignment
-    local -n _rha_result="$1"
+    local result_var="$1"
     local version="$2"
     local resolved
 
@@ -111,7 +110,7 @@ resolve_ha_version() {
             return 1
         fi
         log_info "Resolved to: ${resolved}"
-        _rha_result="$resolved"
+        printf -v "$result_var" '%s' "$resolved"
         return 0
     fi
 
@@ -130,7 +129,7 @@ sys.stdout.write("\n".join(pre))
             return 1
         fi
         log_info "Resolved to: ${resolved}"
-        _rha_result="$resolved"
+        printf -v "$result_var" '%s' "$resolved"
         return 0
     fi
 
@@ -155,11 +154,11 @@ print(versions[-1] if versions else "")
             return 1
         fi
         log_info "Resolved to: ${resolved}"
-        _rha_result="$resolved"
+        printf -v "$result_var" '%s' "$resolved"
         return 0
     fi
 
     # Explicit version (pinned stable or pre-release) → pass through unchanged
     # Examples: "2026.4.3", "2026.4.0b1", "2026.4.0rc2"
-    _rha_result="$version"
+    printf -v "$result_var" '%s' "$version"
 }

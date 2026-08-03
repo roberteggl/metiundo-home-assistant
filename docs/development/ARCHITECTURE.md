@@ -25,7 +25,8 @@ custom_components/metiundo/
 ├── services.yaml            # Service action definitions (legacy filename)
 ├── api/                     # External API communication
 │   ├── __init__.py
-│   └── client.py            # API client implementation
+│   ├── client.py            # API client implementation
+│   └── models.py            # Typed API response models
 ├── config_flow_handler/     # Config flow implementation
 │   ├── __init__.py          # Package exports
 │   ├── handler.py           # Backward compatibility wrapper
@@ -72,7 +73,7 @@ updates to all entities. It is organized as a package with separate modules for 
 
 **Core functionality:**
 
-- Configurable update interval (default: 1 hour, minimum 15 minutes)
+- Configurable update interval (default: 24 hours, minimum 15 minutes)
 - Error handling with exponential backoff
 - Shared data access for all entities
 - Automatic retry on transient failures

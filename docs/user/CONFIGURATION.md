@@ -10,10 +10,13 @@ These options are configured during initial setup via the Home Assistant UI.
 
 #### Account Settings
 
-| Option       | Type   | Required | Default | Description                    |
-| ------------ | ------ | -------- | ------- | ------------------------------ |
-| **Username** | string | Yes      | -       | Your Metiundo account username |
-| **Password** | string | Yes      | -       | Your Metiundo account password |
+| Option            | Type   | Required | Default | Description                         |
+| ----------------- | ------ | -------- | ------- | ----------------------------------- |
+| **Email address** | string | Yes      | -       | Your Metiundo account email address |
+| **Password**      | string | Yes      | -       | Your Metiundo account password      |
+
+If the account has multiple supported electricity metering points, the setup flow asks you
+to select one. One config entry exposes one selected metering point.
 
 ### Options Flow (Reconfiguration)
 
@@ -27,10 +30,11 @@ After initial setup, you can modify settings:
 
 **Available options:**
 
-| Option              | Type    | Default | Description                                       |
-| ------------------- | ------- | ------- | ------------------------------------------------- |
-| **Update Interval** | number  | 1 h     | How often to refresh data (0.25–24 hours)         |
-| **Debug Logging**   | boolean | Off     | Enable detailed debug logging for troubleshooting |
+| Option              | Type    | Default | Description                                              |
+| ------------------- | ------- | ------- | -------------------------------------------------------- |
+| **Update Interval** | number  | 24 h    | How often to refresh the daily API batch (0.25–24 hours) |
+| **Debug Logging**   | boolean | Off     | Enable detailed debug logging for troubleshooting        |
+| **Export Metrics**  | boolean | On      | Create the grid export energy sensor                     |
 
 ## Services
 
@@ -62,15 +66,36 @@ automation:
 
 The integration uses polling to fetch updates from the Metiundo API:
 
-- **Default interval:** 1 hour
+- **Default interval:** 24 hours
 - **Minimum interval:** 15 minutes
 - **Maximum interval:** 24 hours
 
-The Metiundo API provides historical data in 15-minute intervals. A shorter
-update interval does not increase data resolution — it only updates the local
-state more often.
+The Metiundo API publishes a daily batch containing historical data in 15-minute
+intervals. A shorter update interval does not increase data resolution — it only
+requests the same batch more often.
+
+### Initial History Import
+
+During initial setup, the integration can fetch historical readings from a date selected by
+the user. The request is split into smaller ranges and imported into Home Assistant's
+long-term energy statistics. This option is consumed after the first successful refresh and
+is not available as a recurring polling setting.
 
 ## Diagnostic Data
+
+### Manual Historical Import
+
+Use the `metiundo.import_historical_data` action to import a date range after initial
+setup. Select the Metiundo config entry and a start date; the end date is optional and
+defaults to the latest available reading. The action fetches data in chunks and returns
+import counts in its response.
+
+```yaml
+action: metiundo.import_historical_data
+data:
+  config_entry_id: "YOUR_CONFIG_ENTRY_ID"
+  start_date: "2024-01-01"
+```
 
 The integration provides diagnostic data for troubleshooting:
 
@@ -85,6 +110,11 @@ Diagnostic data includes:
 - Update interval
 - Config entry and integration information
 - Entity and device information
+
+The metering-point address, MeLo ID, and MaLo consumption/production IDs are
+available as diagnostic sensors but are disabled by default because they may
+contain sensitive location or market-participant information. Enable them from
+the device's entity settings when needed.
 
 **Privacy note:** Diagnostic data may contain sensitive information. Review before sharing.
 
