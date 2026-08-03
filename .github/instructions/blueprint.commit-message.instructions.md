@@ -45,8 +45,8 @@ Scope is optional but clarifies the affected component. Use the name of the affe
 
 A scope names the affected _component_, never a change _category_. Using a type
 name as a scope misplaces the change in the changelog: `feat(ci): …` lands
-under "Features" as if it were user-facing, while the `ci` **type** is `hidden`
-in `release-please-config.json`. Pipeline and tooling work takes the `ci` or
+under "Features" as if it were user-facing, while the `ci` **type** is hidden.
+Pipeline and tooling work takes the `ci` or
 `chore` type — `ci: enable brands validation`, not
 `feat(ci): enable brands validation`.
 

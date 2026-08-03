@@ -100,25 +100,25 @@ path/to/my-file.json
 
 Files already excluded by default:
 
-| Path                                                          | Reason                                                                   |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `custom_components/`                                          | Your integration code                                                    |
-| `tests/`                                                      | Test files reference your domain (set by `initialize.sh`)                |
-| `pyproject.toml`                                              | Contains your domain in package metadata                                 |
-| `.yamllint.yml`                                               | Contains your domain in configuration comment                            |
-| `.pre-commit-config.yaml`                                     | Contains your domain in file-match patterns                              |
-| `requirements.txt`                                            | Your integration's PyPI dependencies (managed alongside `manifest.json`) |
-| `.vscode/launch.json`, `.vscode/tasks.json`                   | Contain your domain in debugger/task arguments                           |
-| `README.md`, `LICENSE`, etc.                                  | Replaced by `initialize.sh`                                              |
-| `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`                         | Contain domain-specific references                                       |
-| `.github/CODEOWNERS`, `.github/FUNDING.yml`                   | Per-project GitHub settings                                              |
-| `config/`                                                     | Local HA instance (credentials, test data)                               |
-| `docs/`                                                       | Your project documentation                                               |
-| `script/hooks/`, `.devcontainer/hooks/`                       | Your hook scripts                                                        |
-| `.devcontainer/.env`                                          | Your HA_VERSION pin and DevContainer settings                            |
-| `release-please-config.json`, `.release-please-manifest.json` | Release management                                                       |
-| `.github/workflows/template-sync.yml`                         | Sync workflow itself                                                     |
-| `uv.lock`                                                     | Your pinned dependency lockfile                                          |
+| Path                                        | Reason                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------------ |
+| `custom_components/`                        | Your integration code                                                    |
+| `tests/`                                    | Test files reference your domain (set by `initialize.sh`)                |
+| `pyproject.toml`                            | Contains your domain in package metadata                                 |
+| `.yamllint.yml`                             | Contains your domain in configuration comment                            |
+| `.pre-commit-config.yaml`                   | Contains your domain in file-match patterns                              |
+| `requirements.txt`                          | Your integration's PyPI dependencies (managed alongside `manifest.json`) |
+| `.vscode/launch.json`, `.vscode/tasks.json` | Contain your domain in debugger/task arguments                           |
+| `README.md`, `LICENSE`, etc.                | Replaced by `initialize.sh`                                              |
+| `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`       | Contain domain-specific references                                       |
+| `.github/CODEOWNERS`, `.github/FUNDING.yml` | Per-project GitHub settings                                              |
+| `config/`                                   | Local HA instance (credentials, test data)                               |
+| `docs/`                                     | Your project documentation                                               |
+| `script/hooks/`, `.devcontainer/hooks/`     | Your hook scripts                                                        |
+| `.devcontainer/.env`                        | Your HA_VERSION pin and DevContainer settings                            |
+| `.github/workflows/release.yml`             | Tag-based GitHub release workflow                                        |
+| `.github/workflows/template-sync.yml`       | Sync workflow itself                                                     |
+| `uv.lock`                                   | Your pinned dependency lockfile                                          |
 
 > [!TIP]
 > If a file keeps causing conflicts in every sync PR, add it to `.templatesyncignore` instead of resolving the conflict every week.

@@ -2,16 +2,15 @@
 
 # script/version: Display or validate the current integration version
 #
-# Reads the canonical version from manifest.json and optionally validates
-# it against the release-please manifest.
+# Reads the canonical version from manifest.json and can validate a release tag.
 #
 # Usage:
-#   ./script/version [--tag|--check]
+#   ./script/version [--tag|--check-tag TAG]
 #
 # Examples:
-#   ./script/version          # Print: 0.1.0
-#   ./script/version --tag    # Print: v0.1.0
-#   ./script/version --check  # Validate manifest.json matches release-please manifest
+#   ./script/version                         # Print: 0.1.0
+#   ./script/version --tag                   # Print: v0.1.0
+#   ./script/version --check-tag v0.1.0     # Validate a tag matches manifest.json
 
 set -euo pipefail
 
@@ -24,7 +23,6 @@ source "$SCRIPT_DIR/.lib/output.sh"
 source "$SCRIPT_DIR/.lib/integration.sh"
 
 MANIFEST="$INTEGRATION_PATH/manifest.json"
-RP_MANIFEST=".release-please-manifest.json"
 
 require_command jq "apt-get install jq"
 
@@ -38,20 +36,20 @@ case "${1:-}" in
 --tag)
     echo "v$(get_version)"
     ;;
---check)
-    manifest_version=$(get_version)
-    if [[ ! -f "$RP_MANIFEST" ]]; then
-        log_warning "release-please manifest not found: $RP_MANIFEST"
-        log_info "Current version: $manifest_version"
-        exit 0
+--check-tag)
+    if [[ $# -ne 2 ]]; then
+        log_error "A release tag is required"
+        echo "Usage: script/version --check-tag TAG"
+        exit 1
     fi
-    rp_version=$(jq -r '.["."]' "$RP_MANIFEST")
-    if [[ "$manifest_version" == "$rp_version" ]]; then
-        log_success "Versions match: $manifest_version"
+    tag_version="${2#v}"
+    manifest_version=$(get_version)
+    if [[ "$2" == v* && "$tag_version" == "$manifest_version" ]]; then
+        log_success "Tag and manifest versions match: $manifest_version"
     else
-        log_error "Version mismatch!"
-        log_step "manifest.json:              $manifest_version"
-        log_step ".release-please-manifest:   $rp_version"
+        log_error "Tag and manifest versions do not match"
+        log_step "tag:                      $2"
+        log_step "manifest.json:             $manifest_version"
         exit 1
     fi
     ;;
@@ -60,7 +58,7 @@ case "${1:-}" in
     ;;
 *)
     log_error "Unknown option: $1"
-    echo "Usage: script/version [--tag|--check]"
+    echo "Usage: script/version [--tag|--check-tag TAG]"
     exit 1
     ;;
 esac
