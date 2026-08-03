@@ -23,8 +23,6 @@ This is a Home Assistant custom integration that was generated from a blueprint 
 
 **Always use the project's scripts** — do NOT craft your own `hass`, `pip`, `pytest`, or similar commands. The scripts handle environment setup, virtual environments, port management, and cleanup that raw commands miss. Agents that bypass scripts frequently break.
 
-**Devcontainer CLI tools:** The devcontainer provides common agent-facing CLI tools including `bat`, `delta`/`git-delta`, `eza`, `fd`/`fdfind`, `fzf`, `http`/`httpie`, `hyperfine`, `ipython`, `jq`, `jo`, `mlr`/`miller`, `rg`/`ripgrep`, `shellcheck`, `shfmt`, `sponge`, `sqlite3`, `tree`, `yq`, and `yamllint`. Prefer these explicit container tools over assuming a VS Code extension exposes an equivalent CLI on `PATH`.
-
 **CLI compatibility notes:** Some commands are available via compatibility aliases because Debian package names differ from what agents often expect. Prefer `bat`, `fd`, `git-delta`, `httpie`, `ipython`, `miller`, and `ripgrep` as stable spellings. `yq` is installed as the Mike Farah variant, so standard `yq eval`/`yq e` syntax is expected.
 
 **Start Home Assistant:**
@@ -398,13 +396,13 @@ script/check      # Full validation: type-check + lint-check + spell-check
 
 **After editing specific file types, use the targeted script — it is faster:**
 
-| Changed files                          | Run this                              | Why faster                                        |
-| -------------------------------------- | ------------------------------------- | ------------------------------------------------- |
-| `*.py` only                            | `script/python` + `script/type-check` | Fixes + reports ruff; skips yaml, shell, markdown |
-| `*.yaml` / `*.yml` only                | `script/yaml-check`                   | Skips Python, Shell, Markdown, types              |
-| `*.md` only                            | `script/markdown`                     | mdformat + pymarkdownlint only                    |
-| `script/` or `.devcontainer/*.sh` only | `script/shell` + `script/shell-check` | Fixes shfmt, then checks shellcheck               |
-| Multiple types or unsure               | `script/lint` + `script/type-check`   | Safe default for agents                           |
+| Changed files            | Run this                              | Why faster                                        |
+| ------------------------ | ------------------------------------- | ------------------------------------------------- |
+| `*.py` only              | `script/python` + `script/type-check` | Fixes + reports ruff; skips yaml, shell, markdown |
+| `*.yaml` / `*.yml` only  | `script/yaml-check`                   | Skips Python, Shell, Markdown, types              |
+| `*.md` only              | `script/markdown`                     | mdformat + pymarkdownlint only                    |
+| `script/` only           | `script/shell` + `script/shell-check` | Fixes shfmt, then checks shellcheck               |
+| Multiple types or unsure | `script/lint` + `script/type-check`   | Safe default for agents                           |
 
 **Recommended agent workflow — fix scripts already show what they couldn't fix:**
 

@@ -32,11 +32,11 @@ system_health:
 
 # Core integrations
 http:
-  # Development server settings for Codespaces/DevContainer
+  # Development server settings
   server_host: "0.0.0.0"
   # Disable IP banning for development to avoid lockouts
   ip_ban_enabled: false
-  # Allow access from Codespaces reverse proxy
+  # Allow access through a local reverse proxy
   use_x_forwarded_for: true
   trusted_proxies:
     - 127.0.0.0/8

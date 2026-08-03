@@ -98,7 +98,7 @@ The `script/setup/bootstrap` automatically installs dependencies from multiple s
 
 ### From Home Assistant Core
 
-**Version:** Configured via `HA_VERSION` in `.devcontainer/devcontainer.json` (currently `2025.12.3`)
+**Version:** Derived from the minimum Home Assistant version in `hacs.json`; bootstrap installs the latest patch release in that train.
 
 1. **Runtime dependencies** (`requirements_all.txt`)
 

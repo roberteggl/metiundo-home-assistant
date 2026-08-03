@@ -1,10 +1,10 @@
 ______________________________________________________________________
 
-## applyTo: "script/\*\*, .devcontainer/\*.sh"
+## applyTo: "script/\*\*"
 
 # Shell Script Instructions
 
-**Applies to:** Shell scripts in `script/` (extensionless by convention) and `**/.devcontainer/*.sh`
+**Applies to:** Shell scripts in `script/` (extensionless by convention)
 
 ## Formatting Standards
 

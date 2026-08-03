@@ -26,7 +26,7 @@ BREAKING CHANGE: Description (required if breaking, triggers major version bump)
 | ---------- | ------------------------------------------------------------------ |
 | `feat`     | User-facing new functionality (new sensor, service, config option) |
 | `fix`      | Bug fix for user-facing issues                                     |
-| `chore`    | Dev tooling, dependencies, devcontainer — NOT visible to users     |
+| `chore`    | Dev tooling and dependencies — NOT visible to users                |
 | `refactor` | Code restructuring without functional change                       |
 | `docs`     | Documentation only                                                 |
 | `test`     | Adding or fixing tests                                             |
@@ -41,7 +41,7 @@ Scope is optional but clarifies the affected component. Use the name of the affe
 
 - **Platforms:** `sensor`, `switch`, `fan`, `binary_sensor`, `button`, `number`, `select`, `light`, `climate`, …
 - **Layers:** `coordinator`, `api`, `entity`, `config-flow`, `service-actions`, `entity-utils`
-- **System:** `diagnostics`, `repairs`, `manifest`, `translations`, `deps`, `devcontainer`, `tests`
+- **System:** `diagnostics`, `repairs`, `manifest`, `translations`, `deps`, `tests`
 
 A scope names the affected _component_, never a change _category_. Using a type
 name as a scope misplaces the change in the changelog: `feat(ci): …` lands
@@ -75,7 +75,7 @@ fix(coordinator): handle API timeout during initial refresh
 - Wrap async_config_entry_first_refresh in try/except for TimeoutError
 - Raise ConfigEntryNotReady instead of letting exception propagate
 
-chore(devcontainer): add commit message instructions
+chore(tooling): add commit message instructions
 
 - Add .github/instructions/blueprint.commit-message.instructions.md with
   Conventional Commits types, scopes, rules, and examples

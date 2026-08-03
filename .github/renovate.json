@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["devcontainer", "github-actions", "pip_requirements"],
+  "enabledManagers": ["github-actions", "pip_requirements"],
   "schedule": ["before 6am on Monday"],
   "semanticCommits": "enabled",
   "semanticCommitType": "chore",

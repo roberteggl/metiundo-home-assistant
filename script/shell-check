@@ -3,7 +3,7 @@
 # script/shell-check: Check shell scripts with shellcheck and shfmt
 #
 # Runs shellcheck (static analysis) and shfmt in diff mode (check-only) against
-# all shell scripts under script/ and .devcontainer/. Neither tool can auto-fix
+# all shell scripts under script/. Neither tool can auto-fix
 # issues — run script/shell for shfmt formatting, fix shellcheck findings manually.
 # Useful for targeted validation after shell script changes.
 #
@@ -25,10 +25,10 @@ run_hook "shell-check" "pre"
 
 log_header "Checking shell scripts with shellcheck"
 # shellcheck disable=SC2046  # Word splitting is intentional here for file list
-shellcheck -x $(find script/ .devcontainer/ -not -path "script/hooks/*" -not -path ".devcontainer/hooks/*" -type f \( -name "*.sh" -o ! -name "*.*" \) | sort)
+shellcheck -x $(find script/ -not -path "script/hooks/*" -type f \( -name "*.sh" -o ! -name "*.*" \) | sort)
 
 log_header "Checking shell script format with shfmt"
-find script/ .devcontainer/ -not -path "script/hooks/*" -not -path ".devcontainer/hooks/*" -type f \( -name "*.sh" -o ! -name "*.*" \) -print0 | xargs -0 shfmt -i 4 -d
+find script/ -not -path "script/hooks/*" -type f \( -name "*.sh" -o ! -name "*.*" \) -print0 | xargs -0 shfmt -i 4 -d
 
 run_hook "shell-check" "post"
 log_success "Shell check completed"

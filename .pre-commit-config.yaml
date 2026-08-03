@@ -41,15 +41,14 @@ repos:
         files: ^(custom_components/metiundo/|schemas/yaml/|\.github/|\.pre-commit-config\.yaml)
         pass_filenames: true
 
-      # Keep HA release train in sync across all three version sources:
+      # Keep HA release train in sync across both version sources:
       #   requirements_test.txt (pytest-homeassistant-custom-component pin)
       #   hacs.json (homeassistant minimum)
-      #   .devcontainer/.env (HA_VERSION override, if set)
       - id: ha-version-sync
         name: homeassistant/pytest-homeassistant-custom-component sync
         entry: ./script/ha-version-sync
         language: system
-        files: ^(hacs\.json|requirements_test\.txt|\.devcontainer/\.env)$
+        files: ^(hacs\.json|requirements_test\.txt)$
         pass_filenames: false
 
       # Shell script linting
@@ -58,7 +57,7 @@ repos:
         entry: shellcheck -x
         language: system
         types: [shell]
-        files: ^(script/|\.devcontainer/)
+        files: ^script/
         pass_filenames: true
 
       # Shell script formatting
@@ -67,7 +66,7 @@ repos:
         entry: shfmt -i 4 -w
         language: system
         types: [shell]
-        files: ^(script/|\.devcontainer/)
+        files: ^script/
         pass_filenames: true
 
       # Markdown formatting with mdformat

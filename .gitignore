@@ -23,9 +23,6 @@ node_modules/
 # Runtime artifact created by the template-sync workflow (never commit)
 .templatesyncignore.runtime
 
-# Local DevContainer environment overrides (user-specific, see .devcontainer/.env.local.example)
-.devcontainer/.env.local
-
 # Local extra Python dependencies (user-specific, see requirements.txt for project deps)
 requirements.local.txt
 
