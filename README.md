@@ -2,7 +2,7 @@
 
 > [!NOTE]
 > This is an independent, community-maintained integration and is not affiliated with,
-> endorsed by, or supported by [Metiundo](https://metiundo.de).
+> endorsed by, or supported by [Metiundo](https://metiundo.io).
 
 ## Features
 
