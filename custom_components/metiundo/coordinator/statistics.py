@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 from itertools import pairwise
 from typing import TYPE_CHECKING, Literal
 
@@ -13,9 +13,6 @@ from custom_components.metiundo.api.models import MetiundoMeteringPoint, Metiund
 from custom_components.metiundo.const import (
     CONF_ARBEITSPREIS_CT_PER_KWH,
     CONF_ENABLE_COST_METRICS,
-    CONF_GRUNDPREIS_EUR_PER_MONTH,
-    CONF_TARIFF_EFFECTIVE_FROM,
-    CONF_TARIFFS,
     DOMAIN,
     LOGGER,
     STATISTIC_GRID_IMPORT_COST,
@@ -36,15 +33,6 @@ EnergyRegister = Literal["energy_out_kwh", "energy_in_kwh"]
 
 
 @dataclass(frozen=True, slots=True)
-class MetiundoTariff:
-    """Current electricity tariff used for cost statistics."""
-
-    arbeitspreis_eur_per_kwh: float
-    grundpreis_eur_per_month: float
-    effective_from: date
-
-
-@dataclass(frozen=True, slots=True)
 class _LastStatistic:
     """Latest imported statistic used as the next cumulative baseline."""
 
@@ -52,62 +40,16 @@ class _LastStatistic:
     total: float
 
 
-def _parse_tariff(value: Mapping[str, object]) -> MetiundoTariff | None:
-    """Parse one stored tariff and normalize it to the first day of its month."""
-    arbeitspreis = value.get(CONF_ARBEITSPREIS_CT_PER_KWH)
-    grundpreis = value.get(CONF_GRUNDPREIS_EUR_PER_MONTH)
-    effective_from = value.get(CONF_TARIFF_EFFECTIVE_FROM)
-    if (
-        isinstance(arbeitspreis, bool)
-        or not isinstance(arbeitspreis, (int, float))
-        or arbeitspreis < 0
-        or isinstance(grundpreis, bool)
-        or not isinstance(grundpreis, (int, float))
-        or grundpreis < 0
-    ):
-        return None
-
-    if isinstance(effective_from, date):
-        effective_date = effective_from
-    elif isinstance(effective_from, str):
-        try:
-            effective_date = date.fromisoformat(effective_from)
-        except ValueError:
-            return None
-    else:
-        return None
-
-    return MetiundoTariff(
-        arbeitspreis_eur_per_kwh=float(arbeitspreis) / 100,
-        grundpreis_eur_per_month=float(grundpreis),
-        effective_from=effective_date.replace(day=1),
-    )
-
-
-def get_configured_tariffs(entry: MetiundoConfigEntry) -> tuple[MetiundoTariff, ...]:
-    """Return the ordered tariff schedule, if cost statistics are enabled."""
+def get_configured_working_price(entry: MetiundoConfigEntry) -> float | None:
+    """Return the single configured working price in cents per kWh."""
     if not entry.options.get(CONF_ENABLE_COST_METRICS, False):
-        return ()
+        return None
 
-    configured_tariffs = entry.options.get(CONF_TARIFFS)
-    if isinstance(configured_tariffs, list):
-        tariff_values = configured_tariffs
-    else:
-        tariff_values = [entry.options]
-
-    tariffs = tuple(
-        sorted(
-            (
-                tariff
-                for value in tariff_values
-                if isinstance(value, Mapping) and (tariff := _parse_tariff(value)) is not None
-            ),
-            key=lambda tariff: tariff.effective_from,
-        ),
-    )
-    if not tariffs:
-        LOGGER.warning("Cost statistics are enabled but no valid Metiundo tariffs are configured")
-    return tariffs
+    working_price = entry.options.get(CONF_ARBEITSPREIS_CT_PER_KWH)
+    if isinstance(working_price, bool) or not isinstance(working_price, (int, float)) or working_price < 0:
+        LOGGER.warning("Cost statistics are enabled but no valid working price is configured")
+        return None
+    return float(working_price)
 
 
 async def async_import_reading_statistics(
@@ -121,6 +63,7 @@ async def async_import_reading_statistics(
     if "recorder" not in hass.config.components:
         return 0, True
 
+    readings = tuple(readings)
     entry_id = entry.entry_id.replace("-", "_").lower()
     registers: tuple[tuple[EnergyRegister, str, str], ...] = (
         ("energy_out_kwh", "grid_import_energy", "Grid import energy"),
@@ -162,8 +105,8 @@ async def async_import_reading_statistics(
             import_succeeded = False
             LOGGER.warning("Unable to import Metiundo statistics: %s", exception)
 
-    tariffs = get_configured_tariffs(entry)
-    if not tariffs:
+    working_price = get_configured_working_price(entry)
+    if working_price is None:
         return imported_count, import_succeeded
 
     cost_statistic_id = f"{DOMAIN}:{entry_id}_{STATISTIC_GRID_IMPORT_COST}"
@@ -176,7 +119,7 @@ async def async_import_reading_statistics(
             LOGGER.warning("Unable to read the previous Metiundo cost statistic: %s", exception)
             return imported_count, False
 
-    cost_statistics = build_hourly_cost_statistics(readings, tariffs, last_cost_statistic)
+    cost_statistics = build_hourly_cost_statistics(readings, working_price, last_cost_statistic)
     if not cost_statistics:
         return imported_count, import_succeeded
 
@@ -262,16 +205,16 @@ def build_hourly_statistics(
 
 def build_hourly_cost_statistics(
     readings: Iterable[MetiundoReading],
-    tariffs: tuple[MetiundoTariff, ...],
+    working_price_ct_per_kwh: float,
     last_statistic: _LastStatistic | None = None,
 ) -> list[StatisticData]:
-    """Build hourly import costs from cumulative meter readings and a tariff schedule."""
+    """Build hourly import costs using one working price for every reading."""
     ordered_readings = sorted(
         {reading.reading_time: reading for reading in readings if reading.reading_time is not None}.values(),
         key=lambda reading: reading.reading_time or datetime.min.replace(tzinfo=UTC),
     )
-    buckets: dict[datetime, tuple[float, date]] = {}
-    month_tariffs: dict[date, MetiundoTariff] = {}
+    buckets: dict[datetime, float] = defaultdict(float)
+    working_price_eur_per_kwh = working_price_ct_per_kwh / 100
 
     for previous, latest in pairwise(ordered_readings):
         if previous.reading_time is None or latest.reading_time is None:
@@ -281,38 +224,15 @@ def build_hourly_cost_statistics(
         if previous_value is None or latest_value is None or latest_value < previous_value:
             continue
 
-        previous_local = dt_util.as_local(previous.reading_time)
-        month = previous_local.date().replace(day=1)
-        tariff = max(
-            (candidate for candidate in tariffs if candidate.effective_from <= month),
-            key=lambda candidate: candidate.effective_from,
-            default=None,
-        )
-        if tariff is None:
-            continue
-
         bucket_start = dt_util.as_utc(previous.reading_time).replace(minute=0, second=0, microsecond=0)
-        state, existing_month = buckets.get(bucket_start, (0.0, month))
-        month_tariffs[month] = tariff
-        buckets[bucket_start] = (
-            state + (latest_value - previous_value) * tariff.arbeitspreis_eur_per_kwh,
-            existing_month,
-        )
+        buckets[bucket_start] += (latest_value - previous_value) * working_price_eur_per_kwh
 
     last_start = last_statistic.start if last_statistic else None
     running_total = last_statistic.total if last_statistic else 0.0
-    applied_months: set[date] = set()
-    if last_start is not None:
-        last_local = dt_util.as_local(last_start)
-        applied_months.add(last_local.date().replace(day=1))
-
     statistics: list[StatisticData] = []
-    for start, (state, month) in sorted(buckets.items()):
+    for start, state in sorted(buckets.items()):
         if last_start is not None and start <= last_start:
             continue
-        if month not in applied_months:
-            state += month_tariffs[month].grundpreis_eur_per_month
-            applied_months.add(month)
         running_total += state
         statistics.append(StatisticData(start=start, state=state, sum=running_total))
 

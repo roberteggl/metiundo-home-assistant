@@ -13,7 +13,6 @@ When adding many options, consider grouping them:
 from __future__ import annotations
 
 from collections.abc import Mapping
-from datetime import date
 from typing import Any
 
 import voluptuous as vol
@@ -22,40 +21,13 @@ from custom_components.metiundo.const import (
     CONF_ARBEITSPREIS_CT_PER_KWH,
     CONF_ENABLE_COST_METRICS,
     CONF_ENABLE_EXPORT_METRICS,
-    CONF_GRUNDPREIS_EUR_PER_MONTH,
-    CONF_TARIFF_EFFECTIVE_FROM,
-    CONF_TARIFFS,
     DEFAULT_ARBEITSPREIS_CT_PER_KWH,
     DEFAULT_ENABLE_COST_METRICS,
     DEFAULT_ENABLE_DEBUGGING,
     DEFAULT_ENABLE_EXPORT_METRICS,
-    DEFAULT_GRUNDPREIS_EUR_PER_MONTH,
     DEFAULT_UPDATE_INTERVAL_HOURS,
 )
 from homeassistant.helpers import selector
-
-
-def _tariff_defaults(defaults: Mapping[str, Any]) -> Mapping[str, Any]:
-    """Return the latest configured tariff for the options form."""
-    configured_tariffs = defaults.get(CONF_TARIFFS)
-    if isinstance(configured_tariffs, list):
-        tariffs = [tariff for tariff in configured_tariffs if isinstance(tariff, Mapping)]
-        if tariffs:
-            return max(tariffs, key=lambda tariff: str(tariff.get(CONF_TARIFF_EFFECTIVE_FROM, "")))
-    return defaults
-
-
-def _effective_date_default(defaults: Mapping[str, Any]) -> date:
-    """Return the first day of the latest configured tariff month."""
-    configured_date = _tariff_defaults(defaults).get(CONF_TARIFF_EFFECTIVE_FROM)
-    if isinstance(configured_date, date):
-        return configured_date.replace(day=1)
-    if isinstance(configured_date, str):
-        try:
-            return date.fromisoformat(configured_date).replace(day=1)
-        except ValueError:
-            pass
-    return date.today().replace(day=1)
 
 
 def get_options_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
@@ -70,7 +42,6 @@ def get_options_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
 
     """
     defaults = defaults or {}
-    tariff_defaults = _tariff_defaults(defaults)
     return vol.Schema(
         {
             vol.Optional(
@@ -99,7 +70,7 @@ def get_options_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
             ): selector.BooleanSelector(),
             vol.Optional(
                 CONF_ARBEITSPREIS_CT_PER_KWH,
-                default=tariff_defaults.get(CONF_ARBEITSPREIS_CT_PER_KWH, DEFAULT_ARBEITSPREIS_CT_PER_KWH),
+                default=defaults.get(CONF_ARBEITSPREIS_CT_PER_KWH, DEFAULT_ARBEITSPREIS_CT_PER_KWH),
             ): selector.NumberSelector(
                 selector.NumberSelectorConfig(
                     min=0,
@@ -109,22 +80,6 @@ def get_options_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
                     mode=selector.NumberSelectorMode.BOX,
                 ),
             ),
-            vol.Optional(
-                CONF_GRUNDPREIS_EUR_PER_MONTH,
-                default=tariff_defaults.get(CONF_GRUNDPREIS_EUR_PER_MONTH, DEFAULT_GRUNDPREIS_EUR_PER_MONTH),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0,
-                    max=1000,
-                    step=0.01,
-                    unit_of_measurement="EUR/month",
-                    mode=selector.NumberSelectorMode.BOX,
-                ),
-            ),
-            vol.Optional(
-                CONF_TARIFF_EFFECTIVE_FROM,
-                default=_effective_date_default(defaults),
-            ): selector.DateSelector(),
         },
     )
 

@@ -10,7 +10,7 @@
 - **Grid import / export energy**: Cumulative smart meter readings (OBIS 1.8.0 / 2.8.0)
 - **15-minute historical readings** from the Metiundo API
 - **Energy Dashboard-compatible** grid import/export sensors
-- **Energy Dashboard-compatible import cost statistics** with working and standing charges
+- **Energy Dashboard-compatible import cost statistics** using one working price
 - **Reconfigurable** credentials and **options flow** (update interval, debug logging)
 - **Diagnostics**: API connection status and integration statistics
 
@@ -47,7 +47,7 @@ Updates are published through the [GitHub releases](https://github.com/robertegg
 2. Click **"+ Add Integration"** → search for "Metiundo Smart Meter"
 3. Enter your Metiundo account **email address** and **password**
 4. Select the electricity metering point to expose
-5. Optionally enable cost statistics and enter the first tariff
+5. Optionally enable cost statistics and enter the working price
 6. Click **Submit**
 
 The integration validates your credentials and starts loading your data.
@@ -56,19 +56,17 @@ The integration validates your credentials and starts loading your data.
 
 Adjust settings anytime by clicking **Configure** on the integration:
 
-| Name                  | Default        | Description                              |
-| --------------------- | -------------- | ---------------------------------------- |
-| Update Interval       | 24 hours       | How often to refresh the daily API batch |
-| Debug Logging         | Off            | Enable extra debug logging               |
-| Export Metrics        | On             | Create the grid export energy sensor     |
-| Cost Statistics       | Off            | Create import cost statistics            |
-| Working charge        | 0 ct/kWh       | Variable electricity charge              |
-| Standing charge       | 0 EUR/month    | Fixed monthly standing charge            |
-| Tariff Effective From | First of month | Month in which the tariff starts         |
+| Name            | Default  | Description                                      |
+| --------------- | -------- | ------------------------------------------------ |
+| Update Interval | 24 hours | How often to refresh the daily API batch         |
+| Debug Logging   | Off      | Enable extra debug logging                       |
+| Export Metrics  | On       | Create the grid export energy sensor             |
+| Cost Statistics | Off      | Create import cost statistics                    |
+| Working price   | 0 ct/kWh | Electricity price applied to all cost statistics |
 
-Each time cost statistics are enabled and the options are saved, the entered tariff is added to
-the schedule or replaces the tariff for that month. Add historical tariffs before importing the
-corresponding historical data.
+The configured working price is applied uniformly to every imported cost statistic, including
+historical data. Changing the price affects newly imported statistics; use the historical import
+action to rebuild an earlier range with the new price.
 
 During initial setup, you can select **Import data older than the last 48 hours** and choose
 an earliest date. Readings from that date onward are fetched in API-sized chunks and
@@ -89,12 +87,8 @@ To configure it:
 4. Add the **Grid export energy** sensor under return to grid, if export data is available.
 5. Save the configuration and allow Home Assistant to process the statistics.
 
-The cost statistic contains the variable working charge and adds the applicable standing charge
-once to the first available hourly bucket of each calendar month. Tariffs change only at month
-boundaries. Existing cost statistics are not recalculated when an old tariff is edited.
-
-For multiple historical tariffs, leave the initial history import disabled, add all tariff entries
-through **Configure**, and then run `metiundo.import_historical_data` for the desired date range.
+The cost statistic contains each hourly import delta multiplied by the configured working price.
+The same price is used for current and historical imports.
 Historical imports rebuild the requested statistics range from a zero baseline, so they can also
 correct a previous partial-window import when the start date is set to the earliest desired date.
 

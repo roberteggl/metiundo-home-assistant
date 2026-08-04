@@ -18,12 +18,9 @@ from custom_components.metiundo.const import (
     CONF_ARBEITSPREIS_CT_PER_KWH,
     CONF_ENABLE_COST_METRICS,
     CONF_ENABLE_EXPORT_METRICS,
-    CONF_GRUNDPREIS_EUR_PER_MONTH,
     CONF_HISTORY_START_DATE,
     CONF_IMPORT_HISTORICAL_DATA,
     CONF_METERING_POINT_UUID,
-    CONF_TARIFF_EFFECTIVE_FROM,
-    CONF_TARIFFS,
     DEFAULT_ENABLE_EXPORT_METRICS,
     DOMAIN,
     LOGGER,
@@ -42,18 +39,6 @@ ERROR_MAP = {
     "MetiundoApiClientAuthenticationError": "auth",
     "MetiundoApiClientCommunicationError": "connection",
 }
-
-
-def _tariff_date(value: Any) -> date | None:
-    """Return a tariff effective date from config-flow input."""
-    if isinstance(value, date):
-        return value
-    if isinstance(value, str):
-        try:
-            return date.fromisoformat(value)
-        except ValueError:
-            return None
-    return None
 
 
 class MetiundoConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -90,9 +75,6 @@ class MetiundoConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle initial account setup."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            tariff_date = _tariff_date(user_input.get(CONF_TARIFF_EFFECTIVE_FROM))
-            if user_input.get(CONF_ENABLE_COST_METRICS, False) and (tariff_date is None or tariff_date.day != 1):
-                return self._show_user_form({"base": "tariff_must_start_first_of_month"})
             try:
                 points = await validate_credentials(
                     self.hass,
@@ -117,15 +99,8 @@ class MetiundoConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 if user_input.get(CONF_IMPORT_HISTORICAL_DATA, False):
                     options[CONF_IMPORT_HISTORICAL_DATA] = True
                 if user_input.get(CONF_ENABLE_COST_METRICS, False):
-                    assert tariff_date is not None
                     options[CONF_ENABLE_COST_METRICS] = True
-                    options[CONF_TARIFFS] = [
-                        {
-                            CONF_TARIFF_EFFECTIVE_FROM: tariff_date.isoformat(),
-                            CONF_ARBEITSPREIS_CT_PER_KWH: user_input[CONF_ARBEITSPREIS_CT_PER_KWH],
-                            CONF_GRUNDPREIS_EUR_PER_MONTH: user_input[CONF_GRUNDPREIS_EUR_PER_MONTH],
-                        },
-                    ]
+                    options[CONF_ARBEITSPREIS_CT_PER_KWH] = user_input[CONF_ARBEITSPREIS_CT_PER_KWH]
                 return self._prepare_point_selection(credentials, points, options)
 
         return self._show_user_form(errors)

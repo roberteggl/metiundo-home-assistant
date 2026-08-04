@@ -1,6 +1,7 @@
 # Energy Cost and Tariff Draft Plan
 
-**Status:** Implemented. Tariffs are date-based and may change only on the first day of a month.
+**Status:** Superseded. The current implementation uses one working price for every cost statistic
+entry and does not support standing charges or historical tariff schedules.
 
 ## Context
 

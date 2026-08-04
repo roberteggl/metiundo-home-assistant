@@ -3,16 +3,14 @@
     "step": {
       "user": {
         "title": "Metiundo Smart Meter",
-        "description": "Connect your Metiundo account to Home Assistant. The integration provides access to one selected electricity metering point (cumulative grid import/export energy) via the Metiundo API.\n\nIf you enable cost statistics, the first tariff is also used for historical imports. Additional tariffs can be added later through Configure.\n\nIf you need help with the configuration have a look at the [documentation]({documentation_url}).",
+        "description": "Connect your Metiundo account to Home Assistant. The integration provides access to one selected electricity metering point (cumulative grid import/export energy) via the Metiundo API.\n\nIf you enable cost statistics, the working price is applied to every imported statistic, including historical data.\n\nIf you need help with the configuration have a look at the [documentation]({documentation_url}).",
         "data": {
           "username": "Email address",
           "password": "Password",
           "enable_export_metrics": "Enable export metrics",
           "import_historical_data": "Import data older than the last 48 hours",
           "enable_cost_metrics": "Enable energy cost statistics",
-          "arbeitspreis_ct_per_kwh": "Working charge (ct/kWh)",
-          "grundpreis_eur_per_month": "Standing charge (EUR/month)",
-          "tariff_effective_from": "First tariff effective from"
+          "arbeitspreis_ct_per_kwh": "Working price (ct/kWh)"
         }
       },
       "history": {
@@ -52,7 +50,6 @@
       "invalid_metering_point": "Select a valid metering point.",
       "invalid_history_start_date": "Enter a valid start date.",
       "history_start_date_too_recent": "Choose a date at least 48 hours ago.",
-      "tariff_must_start_first_of_month": "Each tariff must start on the first day of a month.",
       "unknown": "Unknown error occurred."
     },
     "abort": {
@@ -65,24 +62,20 @@
     "step": {
       "init": {
         "title": "Configure Integration Options",
-      "description": "Customize how this integration operates. When cost statistics are enabled, saving a tariff adds or replaces the tariff for that month. Tariffs must start on the first day of a month.",
+      "description": "Customize how this integration operates. When cost statistics are enabled, the working price is applied to all cost statistics, including historical data.",
         "data": {
           "update_interval_hours": "Update interval (hours)",
           "enable_debugging": "Enable debug logging",
           "enable_export_metrics": "Enable export metrics",
           "enable_cost_metrics": "Enable energy cost statistics",
-          "arbeitspreis_ct_per_kwh": "Working charge (ct/kWh)",
-          "grundpreis_eur_per_month": "Standing charge (EUR/month)",
-          "tariff_effective_from": "Tariff effective from (first day of month)"
+          "arbeitspreis_ct_per_kwh": "Working price (ct/kWh)"
         },
         "data_description": {
           "update_interval_hours": "How often to refresh data from the API (0.25 to 24 hours)",
           "enable_debugging": "Enable detailed debug logging for troubleshooting",
           "enable_export_metrics": "Create the grid export energy sensor",
           "enable_cost_metrics": "Create an external cost statistic for the Energy Dashboard",
-          "arbeitspreis_ct_per_kwh": "The variable electricity charge per kWh",
-          "grundpreis_eur_per_month": "The fixed monthly standing charge",
-          "tariff_effective_from": "Saving adds or replaces the tariff for this month"
+          "arbeitspreis_ct_per_kwh": "The electricity price applied to every imported cost statistic"
         }
       }
     }
