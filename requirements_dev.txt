@@ -12,7 +12,7 @@
 # Type Checking
 # HA Core uses mypy; this integration uses basedpyright (a pyright fork
 # installable via PyPI instead of npm).
-basedpyright==1.39.9
+basedpyright==1.39.10
 
 # Markdown formatting and linting
 # mdformat is the formatter; pymarkdownlnt is the linter.
@@ -28,7 +28,7 @@ pymarkdownlnt==0.9.39
 # `pre-commit install` failing in script/setup/bootstrap and no hooks
 # installed at all. .pre-commit-config.yaml targets pre-commit, so the
 # blueprint owns this dependency itself.
-pre-commit==4.6.1
+pre-commit==4.6.2
 
 # Better logging for development scripts
 colorlog==6.12.0
