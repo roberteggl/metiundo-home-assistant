@@ -12,14 +12,14 @@
 # Type Checking
 # HA Core uses mypy; this integration uses basedpyright (a pyright fork
 # installable via PyPI instead of npm).
-basedpyright==1.39.10
+basedpyright==1.40.1
 
 # Markdown formatting and linting
 # mdformat is the formatter; pymarkdownlnt is the linter.
 mdformat==1.0.0
 mdformat-gfm==1.0.0
 mdformat-footnote==0.1.3
-pymarkdownlnt==0.9.39
+pymarkdownlnt==0.9.40
 
 # Git hook framework
 # Declared explicitly on purpose: HA Core does NOT ship pre-commit. As of
