@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -13,6 +14,8 @@ from custom_components.metiundo.api.models import MetiundoMeteringPoint, Metiund
 from custom_components.metiundo.const import (
     CONF_ARBEITSPREIS_CT_PER_KWH,
     CONF_ENABLE_COST_METRICS,
+    CONF_ENABLE_EXPORT_METRICS,
+    DEFAULT_ENABLE_EXPORT_METRICS,
     DOMAIN,
     LOGGER,
     STATISTIC_GRID_IMPORT_COST,
@@ -30,6 +33,8 @@ if TYPE_CHECKING:
     from custom_components.metiundo.data import MetiundoConfigEntry
 
 EnergyRegister = Literal["energy_out_kwh", "energy_in_kwh"]
+
+_CLEAR_STATISTICS_TIMEOUT_SECONDS = 30
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,8 +74,28 @@ async def async_import_reading_statistics(
         ("energy_out_kwh", "grid_import_energy", "Grid import energy"),
         ("energy_in_kwh", "grid_export_energy", "Grid export energy"),
     )
-    if not entry.options.get("enable_export_metrics", True):
+    export_metrics_enabled = entry.options.get(
+        CONF_ENABLE_EXPORT_METRICS,
+        DEFAULT_ENABLE_EXPORT_METRICS,
+    )
+    if not export_metrics_enabled:
         registers = registers[:1]
+
+    working_price = get_configured_working_price(entry)
+    cost_statistic_id = f"{DOMAIN}:{entry_id}_{STATISTIC_GRID_IMPORT_COST}"
+    if rebuild_statistics:
+        # Clear every known statistic for this entry, including ones that are
+        # currently disabled, so a rebuild cannot leave stale cumulative sums.
+        statistic_ids_to_clear = [
+            f"{DOMAIN}:{entry_id}_grid_import_energy",
+            f"{DOMAIN}:{entry_id}_grid_export_energy",
+            cost_statistic_id,
+        ]
+        try:
+            await _async_clear_external_statistics(hass, statistic_ids_to_clear)
+        except HomeAssistantError as exception:
+            LOGGER.warning("Unable to clear previous Metiundo statistics: %s", exception)
+            return 0, False
 
     imported_count = 0
     import_succeeded = True
@@ -105,11 +130,9 @@ async def async_import_reading_statistics(
             import_succeeded = False
             LOGGER.warning("Unable to import Metiundo statistics: %s", exception)
 
-    working_price = get_configured_working_price(entry)
     if working_price is None:
         return imported_count, import_succeeded
 
-    cost_statistic_id = f"{DOMAIN}:{entry_id}_{STATISTIC_GRID_IMPORT_COST}"
     if rebuild_statistics:
         last_cost_statistic = None
     else:
@@ -140,6 +163,27 @@ async def async_import_reading_statistics(
         LOGGER.warning("Unable to import Metiundo cost statistics: %s", exception)
 
     return imported_count, import_succeeded
+
+
+async def _async_clear_external_statistics(
+    hass: HomeAssistant,
+    statistic_ids: list[str],
+) -> None:
+    """Delete existing external statistics before a full rebuild."""
+    if not statistic_ids:
+        return
+
+    done_event = asyncio.Event()
+
+    def _on_done() -> None:
+        hass.loop.call_soon_threadsafe(done_event.set)
+
+    get_instance(hass).async_clear_statistics(statistic_ids, on_done=_on_done)
+    try:
+        async with asyncio.timeout(_CLEAR_STATISTICS_TIMEOUT_SECONDS):
+            await done_event.wait()
+    except TimeoutError as exception:
+        raise HomeAssistantError("Timed out clearing Metiundo statistics") from exception
 
 
 async def _async_get_last_statistic(

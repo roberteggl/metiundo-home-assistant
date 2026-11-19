@@ -47,15 +47,16 @@ async def async_setup_services(hass: HomeAssistant) -> None:
 
     async def handle_reload_data(call: ServiceCall) -> None:
         """Handle the reload_data service call."""
-        # Find all config entries for this domain
-        entries = hass.config_entries.async_entries(DOMAIN)
+        entries = [
+            entry
+            for entry in hass.config_entries.async_entries(DOMAIN)
+            if entry.state is config_entries.ConfigEntryState.LOADED
+        ]
         if not entries:
-            LOGGER.warning("No config entries found for %s", DOMAIN)
-            return
+            raise ServiceValidationError("No loaded Metiundo config entries were found")
 
-        # Reload data for all entries
         for entry in entries:
-            await async_handle_reload_data(hass, entry, call)
+            await async_handle_reload_data(hass, cast("MetiundoConfigEntry", entry), call)
 
     async def handle_import_historical_data(call: ServiceCall) -> ServiceResponse:
         """Handle a targeted historical data import."""

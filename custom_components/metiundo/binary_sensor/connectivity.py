@@ -40,6 +40,11 @@ class MetiundoConnectivitySensor(BinarySensorEntity, MetiundoEntity):
         super().__init__(coordinator, entity_description)
 
     @property
+    def available(self) -> bool:
+        """Keep the entity available so a failed update can show as off."""
+        return True
+
+    @property
     def is_on(self) -> bool:
         """Return true if the API connection is established."""
         # Connection is considered established if coordinator has valid data

@@ -4,72 +4,38 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from custom_components.metiundo.const import LOGGER
-from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
-from homeassistant.helpers.update_coordinator import UpdateFailed
-from homeassistant.util import dt as dt_util
+from custom_components.metiundo.const import DOMAIN, LOGGER
+from homeassistant.exceptions import ConfigEntryAuthFailed, ServiceValidationError
 
 if TYPE_CHECKING:
     from custom_components.metiundo.data import MetiundoConfigEntry
-    from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse
+    from homeassistant.core import HomeAssistant, ServiceCall
 
 
 async def async_handle_reload_data(
-    hass: HomeAssistant,
+    _hass: HomeAssistant,
     entry: MetiundoConfigEntry,
-    call: ServiceCall,
-) -> ServiceResponse:
+    _call: ServiceCall,
+) -> None:
     """
-    Handle the reload_data service call with response data.
+    Force a coordinator refresh for one config entry.
 
-    This service forces a refresh of the integration data and returns
-    diagnostic information about the refresh operation.
-
-    Args:
-        hass: Home Assistant instance
-        entry: Config entry for the integration
-        call: Service call data
-
-    Returns:
-        ServiceResponse: Dictionary with refresh status, timestamp, and data summary
+    ``async_request_refresh`` only schedules work and never raises update failures,
+    so this awaits ``async_refresh`` and reports the outcome via the coordinator.
     """
-    LOGGER.info("Reload data service called")
+    LOGGER.info("Reload data service called for entry %s", entry.entry_id)
 
-    # Access the coordinator and trigger a refresh
     coordinator = entry.runtime_data.coordinator
-    start_time = dt_util.now()
-
     try:
-        await coordinator.async_request_refresh()
-    except (UpdateFailed, ConfigEntryAuthFailed, ConfigEntryNotReady) as exception:
-        LOGGER.exception("Failed to reload data: %s", exception)
-        # Return error response instead of raising
-        return {
-            "status": "error",
-            "timestamp": dt_util.now().isoformat(),
-            "error": str(exception),
-            "error_type": type(exception).__name__,
-        }
-    else:
-        end_time = dt_util.now()
-        duration_ms = (end_time - start_time).total_seconds() * 1000
+        await coordinator.async_refresh()
+    except ConfigEntryAuthFailed as exception:
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="authentication_failed",
+        ) from exception
 
-        # The coordinator contains one current reading for the selected point.
-        data_size = len(str(coordinator.data)) if coordinator.data else 0
-        record_count = 1 if coordinator.data else 0
+    if not coordinator.last_update_success:
+        error = coordinator.last_exception or "Unknown error"
+        raise ServiceValidationError(f"Failed to reload Metiundo data: {error}")
 
-        response_data: ServiceResponse = {
-            "status": "success",
-            "timestamp": end_time.isoformat(),
-            "duration_ms": round(duration_ms, 2),
-            "record_count": record_count,
-            "data_size_bytes": data_size,
-            "last_update_success": coordinator.last_update_success,
-        }
-
-        LOGGER.info(
-            "Data reload completed successfully in %.2fms with %d records",
-            duration_ms,
-            record_count,
-        )
-        return response_data
+    LOGGER.info("Data reload completed successfully for entry %s", entry.entry_id)

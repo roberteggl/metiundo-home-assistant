@@ -48,7 +48,11 @@ class MetiundoOptionsFlow(config_entries.OptionsFlow):
 
         """
         if user_input is not None:
-            return self.async_create_entry(title="", data=dict(user_input))
+            # Merge so one-time flags like historical import are not wiped.
+            return self.async_create_entry(
+                title="",
+                data={**dict(self.config_entry.options), **user_input},
+            )
 
         return self.async_show_form(
             step_id="init",
