@@ -23,6 +23,12 @@
       "enabled": false
     },
     {
+      "description": "Ignore actions/setup-python python-version — keep aligned with requires-python / HA support",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["python"],
+      "enabled": false
+    },
+    {
       "description": "Group GitHub Actions minor/patch updates; major updates stay separate",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch"],
